@@ -3,8 +3,8 @@
 // public/robots.txt et public/sitemap.xml. Ne dupliquer aucune de ces
 // valeurs ailleurs : éditer ici, puis `npm run seo`.
 
-/** Domaine canonique (TODO: remplacer par le domaine réel). */
-export const SITE_URL = 'https://www.exemple.ma';
+/** Domaine canonique (production Cloudflare Pages). */
+export const SITE_URL = 'https://calculateur-salaire-maroc.naboulsi-riyad.workers.dev';
 
 /** Millésime fiscal affiché et fraîcheur signalée aux moteurs. */
 export const ANNEE = 2026;
