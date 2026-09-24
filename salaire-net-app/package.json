@@ -1,0 +1,19 @@
+{
+  "name": "salaire-net-app",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "seo": "node scripts/seo.mjs",
+    "og": "node scripts/og.mjs",
+    "build": "npm run seo && tsc && vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.63.0",
+    "typescript": "~6.0.2",
+    "vite": "^8.3.0",
+    "vitest": "^5.0.1"
+  }
+}

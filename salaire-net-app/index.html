@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<!-- SEO:HEAD:START -->
+    <title>Calcul Salaire Brut Net Maroc 2026 – Simulateur IR</title>
+    <meta name="description" content="Simulez votre salaire net au Maroc en 2026 : brut → net mensuel et annuel, IR, CNSS, AMO, CIMR. Calculateur gratuit, 100 % local." />
+    <!-- Domaine : source unique scripts/site.mjs (commande npm run seo) -->
+    <link rel="canonical" href="https://www.exemple.ma/" />
+    <meta name="robots" content="index,follow,max-image-preview:large" />
+    <meta name="theme-color" content="#0e6b4a" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="fr_MA" />
+    <meta property="og:url" content="https://www.exemple.ma/" />
+    <meta property="og:title" content="Calcul Salaire Brut Net Maroc 2026 – Simulateur IR" />
+    <meta property="og:description" content="Brut → net, IR, CNSS, AMO, CIMR : simulation gratuite, règles 2026." />
+    <meta property="og:image" content="https://www.exemple.ma/og-calculateur-1200x630.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Calcul Salaire Brut Net Maroc 2026 – Simulateur IR" />
+    <meta name="twitter:description" content="Brut → net, IR, CNSS, AMO, CIMR : simulation gratuite, règles 2026." />
+    <meta name="twitter:image" content="https://www.exemple.ma/og-calculateur-1200x630.png" />
+<!-- SEO:HEAD:END -->
+    <script type="application/ld+json">
+<!-- SEO:FAQ-JSONLD:START -->
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebApplication",
+          "name": "Calculateur Salaire Brut/Net Maroc 2026",
+          "url": "https://www.exemple.ma",
+          "inLanguage": "fr",
+          "applicationCategory": "FinanceApplication",
+          "operatingSystem": "Web",
+          "isAccessibleForFree": true,
+          "dateModified": "2026-01-01",
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "MAD"
+          }
+        },
+        {
+          "@type": "FAQPage",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "Comment calculer le salaire net au Maroc en 2026 ?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Net = total des gains (brut + ancienneté + panier + transport) − CNSS − AMO − CIMR − IR. Saisissez votre brut mensuel dans le simulateur."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Quels sont les taux CNSS et AMO en 2026 ?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Part salariale : CNSS 4,48 % plafonnée à 6 000 MAD/mois, AMO 2,26 % sans plafond."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Comment est calculé l'IR sur salaire au Maroc en 2026 ?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "L'IR s'applique par 6 tranches (0 % à 37 %) sur le net imposable, après frais professionnels et déduction de 600 MAD par personne à charge (plafond 3 600 MAD)."
+              }
+            }
+          ]
+        }
+      ]
+    }
+<!-- SEO:FAQ-JSONLD:END -->
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="page">
+      <header class="masthead">
+        <div>
+          <p class="eyebrow">Bulletin de paie · Maroc · <span id="lf-annee">LF</span></p>
+          <h1>Calculateur du Salaire Brut/Net Maroc</h1>
+        </div>
+        <div class="stamp" aria-hidden="true">
+          <span id="stamp-ir">IR</span>
+          <strong id="stamp-tranches">tranches</strong>
+        </div>
+      </header>
+
+      <main class="grid">
+        <section class="card form-card" aria-labelledby="t-entrees">
+          <h2 id="t-entrees">Entrées mensuelles</h2>
+
+          <label class="field">
+            <span>Salaire brut de base (MAD)</span>
+            <input id="brut" type="number" min="0" step="0.01" inputmode="decimal" />
+            <small id="smig-aide"></small>
+          </label>
+
+          <label class="field">
+            <span>Date d'embauche</span>
+            <input id="embauche" type="date" max="2026-09-23" />
+            <small id="anc-aide">Ancienneté calculée à aujourd'hui.</small>
+          </label>
+
+          <div class="row2">
+            <label class="field">
+              <span>Panier (MAD)</span>
+              <input id="panier" type="number" min="0" step="0.01" inputmode="decimal" />
+            </label>
+            <label class="field">
+              <span>Transport (MAD)</span>
+              <input id="transport" type="number" min="0" step="0.01" inputmode="decimal" />
+            </label>
+          </div>
+
+          <fieldset class="field">
+            <legend id="amo-legende">Cotisation AMO</legend>
+            <div class="seg" role="radiogroup" aria-label="AMO">
+              <label><input type="radio" name="amo" value="oui" checked /> Oui</label>
+              <label><input type="radio" name="amo" value="non" /> Non</label>
+            </div>
+          </fieldset>
+
+          <div class="row2">
+            <label class="field">
+              <span>CIMR — taux salarial</span>
+              <select id="cimr" aria-label="Taux CIMR"></select>
+              <small>Assiette = brut majoré. Warning fiscal &gt; 6 %.</small>
+            </label>
+            <label class="field">
+              <span>Personnes à charge (0–6)</span>
+              <select id="charges" aria-label="Personnes à charge"></select>
+              <small id="famille-aide"></small>
+            </label>
+          </div>
+        </section>
+
+        <section class="card slip" aria-labelledby="t-resultats" aria-live="polite">
+          <h2 id="t-resultats">Bulletin — net à payer</h2>
+
+          <div class="nets">
+            <div class="net-main">
+              <span>Net mensuel</span>
+              <strong id="net-mois" class="mono">—</strong>
+            </div>
+            <div class="net-alt">
+              <span>Net annuel</span>
+              <strong id="net-an" class="mono">—</strong>
+            </div>
+          </div>
+
+          <div class="badges">
+            <span id="badge-tranche" class="badge">—</span>
+            <span id="badge-sni" class="badge ghost">—</span>
+          </div>
+          <div id="warnings" class="warnings"></div>
+
+          <div class="table-scroll" role="region" aria-labelledby="t-resultats" tabindex="0">
+            <table class="ledger">
+              <thead>
+                <tr><th>Ligne</th><th class="num">Taux</th><th class="num">Mensuel</th><th class="num">Annuel</th></tr>
+              </thead>
+              <tbody id="lignes"></tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+
+      <section class="card faq" aria-labelledby="t-faq">
+        <h2 id="t-faq">Questions fréquentes — règles 2026</h2>
+<!-- SEO:FAQ-BODY:START -->
+      <div class="qa">
+        <h3>Comment calculer le salaire net au Maroc en 2026 ?</h3>
+        <p>Net = total des gains (brut + ancienneté + panier + transport) − CNSS − AMO − CIMR − IR. Saisissez votre brut mensuel dans le simulateur.</p>
+      </div>
+      <div class="qa">
+        <h3>Quels sont les taux CNSS et AMO en 2026 ?</h3>
+        <p>Part salariale : CNSS 4,48 % plafonnée à 6 000 MAD/mois, AMO 2,26 % sans plafond.</p>
+      </div>
+      <div class="qa">
+        <h3>Comment est calculé l'IR sur salaire au Maroc en 2026 ?</h3>
+        <p>L'IR s'applique par 6 tranches (0 % à 37 %) sur le net imposable, après frais professionnels et déduction de 600 MAD par personne à charge (plafond 3 600 MAD).</p>
+      </div>
+<!-- SEO:FAQ-BODY:END -->
+      </section>
+
+      <footer class="foot">
+<!-- SEO:FOOTER:START -->
+      <span>Textes : <a href="https://www.tax.gov.ma">CGI/DGI</a> · LF 60-24 · LF 50-25 · NC DGI 737 · Déc. 2.25.983 (BO 7469)</span>
+      <span>Portails : <a href="https://www.cnss.ma">CNSS</a> · <a href="https://damancom.ma">DamanCom</a> · <a href="https://www.cimr.ma">CIMR</a></span>
+<!-- SEO:FOOTER:END -->
+      </footer>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

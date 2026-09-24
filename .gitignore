@@ -1,0 +1,33 @@
+# Dépendances & build (ne jamais versionner)
+salaire-net-app/node_modules/
+salaire-net-app/dist/
+salaire-net-app/dist-ssr/
+
+# Artefacts de test — régénérés à chaque run
+salaire-net-app/e2e.png
+salaire-net-app/e2e-mobile.png
+salaire-net-app/coverage/
+salaire-net-app/test-results/
+salaire-net-app/playwright-report/
+
+# Navigateur MCP & déploiement Cloudflare
+.playwright-mcp/
+salaire-net-app/.wrangler/
+
+# Secrets & env locaux (.env.example reste versionné si besoin)
+.env
+*.local
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# OS & éditeurs
+Thumbs.db
+.DS_Store
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.suo
+*.sw?
