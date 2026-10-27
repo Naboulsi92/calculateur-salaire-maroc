@@ -26,7 +26,7 @@ devDependency et la config de déploiement vit dans
   depuis `scripts/site.mjs` (source unique, dont le domaine)
 - `npm run og` — régénère les 2 images OG 1200×630 (Chromium)
 - `npm run build` — `seo` + `tsc` + build Vite multi-pages (`dist/`)
-- `npx vitest run` — tests unitaires (`tests/*.test.ts`, 77 tests, dont les
+- `npx vitest run` — tests unitaires (`tests/*.test.ts`, 79 tests, dont les
   golden barèmes 2026–2031)
 - `node tests/e2e.mjs` / `node tests/e2e-responsive.mjs` /
   `node tests/e2e-comparateur.mjs` — Playwright (nécessite

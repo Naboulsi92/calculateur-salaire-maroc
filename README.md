@@ -24,7 +24,7 @@ golden tests.
 
 ## 🧪 Qualité
 
-- **77 tests vitest** dont 33 golden tests des barèmes IR 2026–2031 (exact au
+- **79 tests vitest** dont 33 golden tests des barèmes IR 2026–2031 (exact au
   centime, vecteurs vérifiés en croisant le projet de loi n° 60-26)
 - **3 scénarios e2e** Playwright (home, responsive 320–1024 px, comparateur)
 - Source unique SEO (`scripts/site.mjs`) → head, FAQ, JSON-LD, sitemap 2 URL,
