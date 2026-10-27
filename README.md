@@ -16,10 +16,11 @@ Déploiement auto (Cloudflare Workers Builds) à chaque push sur `master`.
 | Emplacement | Contenu |
 |---|---|
 | [`salaire-net-app/`](salaire-net-app/) | **L'application** (code, tests, build) — voir son [README](salaire-net-app/README.md) : commandes, architecture, procédure de mise à jour PLF |
-| [`Calcul.md`](Calcul.md) | **Base de vérité des règles de calcul** (v1.3) — toute divergence d'un bulletin réel y est remontée d'abord |
-| [`plan.md`](plan.md) | Wayfinder du comparateur PLF 2027 : décisions D1–D29, barèmes vérifiés 2026–2031, journal |
-| [`docs/wayfinder/`](docs/wayfinder/) | Recherche (extraction PLF, vérification croisée), prototype, captures |
-| [`Fonctions.md`](Fonctions.md) | Backlog V2 |
+
+Les documents de travail (recherche PLF, prototype, journal de décisions) sont
+locaux, non versionnés. Les règles de calcul vivent dans le code — barèmes en
+données (`src/baremes.ts`), moteur pur (`src/calcul.ts`) — verrouillées par les
+golden tests.
 
 ## 🧪 Qualité
 

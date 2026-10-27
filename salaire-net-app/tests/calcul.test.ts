@@ -23,7 +23,7 @@ const base = {
   nbCharges: 2,
 };
 
-describe('Calcul.md — cas de référence', () => {
+describe('Cas de référence — règles LF 2026', () => {
   it('exemple standard (sans ancienneté, SBI=8000, total gains 8500)', () => {
     // brut 8000, transport 500 versé en sus : SBI 8000, total gains 8500
     const r = calcMensuel(base);

@@ -1,4 +1,4 @@
-// Moteur de calcul pur — conforme à Calcul.md v1.0
+// Moteur de calcul pur — règles LF 2026 (brut → cotisations → IR → net)
 // Ordre strict: anc. → SBI → FP/CNSS/AMO/CIMR → SNI → IR → Net
 // Arrondi: round2 + clamp ≥ 0 après chaque ligne (paie réelle).
 

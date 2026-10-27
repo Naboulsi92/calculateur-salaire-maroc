@@ -1,5 +1,6 @@
 // Golden tests — registre multi-années 2026–2031 (I1, décisions D16–D17).
-// Source des vecteurs : plan.md §3 (tableaux PLF 2027 n° 60-26, vérifiés en T1).
+// Source des vecteurs : tableaux du PLF 2027 n° 60-26 (vérifiés en croisant
+// le projet de loi et les sources DGI).
 // Politique (D16) : exact au centime sur NOS sorties moteur recomputées
 // indépendamment ; vecteurs externes (presse/simulateurs) avec tolérance ±3 MAD.
 // 2028–2030 : déductions DÉRIVÉES (bornes + taux confirmés) — à re-vérifier au

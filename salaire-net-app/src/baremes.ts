@@ -1,7 +1,8 @@
 // Barèmes officiels Maroc — REGISTRE MULTI-ANNÉES (D8–D10).
 // Chaque année porte IR (mensuel + annuel) + FP ; CNSS / AMO / CIMR / Famille /
 // SMIG restent des constantes partagées — le partage EST la garantie d'invariance.
-// Source de vérité : plan.md §3 (PLF 2027 n° 60-26, vérifié en T1) + Calcul.md v1.0.
+// Source de vérité : tableaux du PLF 2027 n° 60-26 (barèmes annuels vérifiés)
+// + règles LF 2026 (NC DGI 737, déc. 2.25.983).
 // Statuts : 2026 'en-vigueur' · 2027–2031 'projet' (PLF non voté au 27/10/2026) — D10.
 
 export interface TrancheIR {
@@ -33,8 +34,8 @@ export interface BaremeAnnuel {
 }
 
 // ---------------------------------------------------------------------------
-// Registre 2026–2031 (plan.md §3.1–§3.3). Barème mensuel = annuel ÷ 12 :
-// aucun « barème mensuel officiel » n'existe (plan.md §2 / artefact T1 §5).
+// Registre 2026–2031. Barème mensuel = annuel ÷ 12 : aucun « barème mensuel
+// officiel » n'existe (déductions mensuelles = déductions annuelles ÷ 12).
 // ---------------------------------------------------------------------------
 
 export const BAREMES: Readonly<Record<number, BaremeAnnuel>> = {

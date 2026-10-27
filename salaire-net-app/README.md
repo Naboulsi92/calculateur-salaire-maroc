@@ -2,8 +2,9 @@
 
 SPA frontend-only (Vite + TypeScript vanilla, zéro backend) : brut mensuel →
 net mensuel et annuel selon les règles marocaines (IR, CNSS, AMO, CIMR, frais
-professionnels, foyer fiscal 600/pers.). Référence des règles :
-[`Calcul.md`](../Calcul.md) v1.2. Backlog V2 : [`Fonctions.md`](../Fonctions.md).
+professionnels, foyer fiscal 600/pers.). Les règles vivent dans le code :
+barèmes en données (`src/baremes.ts`), moteur pur (`src/calcul.ts`), verrou
+golden tests (`tests/baremes-2027.test.ts`, `tests/calcul.test.ts`).
 
 **2 pages** (build multi-pages) :
 
@@ -25,7 +26,7 @@ devDependency et la config de déploiement vit dans
   depuis `scripts/site.mjs` (source unique, dont le domaine)
 - `npm run og` — régénère les 2 images OG 1200×630 (Chromium)
 - `npm run build` — `seo` + `tsc` + build Vite multi-pages (`dist/`)
-- `npx vitest run` — tests unitaires (`tests/*.test.ts`, 75 tests, dont les
+- `npx vitest run` — tests unitaires (`tests/*.test.ts`, 77 tests, dont les
   golden barèmes 2026–2031)
 - `node tests/e2e.mjs` / `node tests/e2e-responsive.mjs` /
   `node tests/e2e-comparateur.mjs` — Playwright (nécessite
@@ -49,10 +50,10 @@ devDependency et la config de déploiement vit dans
 - `tests/baremes-2027.test.ts` — golden tests du registre (vecteurs exacts,
   frontières de tranches, plafonds FP, écart-net = −écart-IR)
 
-## Mise à jour PLF — procédure (D20)
+## Mise à jour PLF — procédure
 
 Le PLF 2027 (projet de loi n° 60-26) n'est **pas voté** au 27/10/2026. Jalons de
-re-vérification (plan.md, T7/D18) : **vote du Parlement** (~19/11–17/12/2026) ·
+re-vérification : **vote du Parlement** (~19/11–17/12/2026) ·
 **publication au Bulletin officiel** (fin décembre) · **01/01/2027** — plus
 re-vérification à la demande si un amendement médiatisé touche les salaires.
 
@@ -76,7 +77,8 @@ re-vérification à la demande si un amendement médiatisé touche les salaires.
 
 ## Conventions
 
-- Toute règle de calcul atterrit d'abord dans `Calcul.md`.
+- Règles de calcul : **données d'abord** (`src/baremes.ts`) + golden tests —
+  tout amendement fiscal passe par là, jamais dans les adaptateurs UI.
 - Montants : moteur pur + tests vitest avant UI. Pas de backend.
 - Arrondi : `round2` par ligne (paie réelle) — le comparateur suit le moteur.
 - CSS : `@layer base, composants, responsive, print, motion`.
