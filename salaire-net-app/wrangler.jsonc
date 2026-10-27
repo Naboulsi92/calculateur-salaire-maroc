@@ -16,6 +16,12 @@
   },
   "assets": {
     "directory": "./dist",
+    // `html_handling: none` = `.html` servi tel quel (200), aucune normalisation
+    // d'URL. Le défaut « auto-trailing-slash » renvoyait 307 de
+    // /salaire-net-2027.html vers /salaire-net-2027, en contradiction avec le
+    // canonical, le sitemap et le maillage interne (tous en .html) — audit
+    // OpenSEO 27/10/2026. Avec « none », l'URL canonique est celle servie.
+    "html_handling": "none",
     "not_found_handling": "404-page"
   }
 }

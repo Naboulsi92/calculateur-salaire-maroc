@@ -57,8 +57,8 @@ export const FAQ_COMPARATEUR = [
 /** Métadonnées de la page comparateur (slug D12, indexation immédiate D13). */
 export const PAGE_COMPARATEUR = {
   slug: 'salaire-net-2027.html',
-  titre: `Salaire net ${ANNEE_CIBLE} vs ${ANNEE} au Maroc — comparateur IR (PLF ${ANNEE_CIBLE})`,
-  description: `Comparez votre salaire net ${ANNEE_CIBLE} vs ${ANNEE} au Maroc : barèmes IR du PLF ${ANNEE_CIBLE} (exonération 60 000 DH, frais professionnels 45 %), écart mensuel et annuel ligne à ligne. Gratuit, 100 % local.`,
+  titre: `Salaire net ${ANNEE_CIBLE} vs ${ANNEE} au Maroc — comparateur IR PLF ${ANNEE_CIBLE}`,
+  description: `Comparez votre salaire net ${ANNEE_CIBLE} vs ${ANNEE} au Maroc : barèmes IR du PLF ${ANNEE_CIBLE}, exonération 60 000 DH, écart mensuel et annuel ligne à ligne. Gratuit.`,
   ogDescription: `Votre net ${ANNEE_CIBLE} vs ${ANNEE}, ligne à ligne : barèmes IR du PLF ${ANNEE_CIBLE}, frais professionnels 45 %, écart mensuel et annuel.`,
   ogImage: 'og-comparateur-1200x630.png',
   nomApp: `Comparateur Salaire Net ${ANNEE_CIBLE} vs ${ANNEE} (PLF ${ANNEE_CIBLE})`,
