@@ -4,14 +4,16 @@
 
 import {
   AMO,
+  ANNEE_COURANTE,
   CIMR_SEUIL_FISCAL,
   CNSS,
   FAMILLE,
-  FP,
-  IR_ANNUEL,
-  IR_MENSUEL,
   SMIG_MENSUEL,
   findTranche,
+  findTrancheFP,
+  getBareme,
+  type StatutBareme,
+  type TrancheFP,
   type TrancheIR,
 } from './baremes';
 import { court } from './format';
@@ -25,6 +27,7 @@ export interface Inputs {
   tauxCimr: number; // % ex: 6 = 6%
   nbCharges: number; // 0..6
   refDate?: Date; // défaut today (injectable pour tests)
+  annee?: number; // millésime IR+FP ; défaut = dernière année 'en-vigueur' (D10)
 }
 
 export interface Anciennete {
@@ -64,8 +67,10 @@ export interface Resultat {
   net: number;
   trancheLabel: string;
   trancheIndex: number;
-  tauxFP: number; // 0.35 ou 0.25 — taux nominal appliqué
+  tauxFP: number; // taux nominal FP appliqué (0.35/0.25 en 2026 · 0.45 en 2027+)
   tauxIR: number; // 0..0.37 — taux nominal de la tranche appliquée
+  annee: number; // millésime des barèmes appliqués
+  statut: StatutBareme; // 'en-vigueur' | 'projet' — badge UI (D10)
   // annuel = mensuel * 12
   annual: Record<
     | 'brutMajore'
@@ -170,11 +175,38 @@ export function assiettes(brutMajore: number, panier: number, transport: number)
   return { imposable, gains: pos2(brutMajore + panier + transport) };
 }
 
-export function calcMensuel(inp: Inputs): Resultat {  const ref = inp.refDate ?? new Date();
+// ---------------------------------------------------------------------------
+// D9 : FP générique par tranches — un seul moteur pour tous les millésimes
+// (2026 : deux paliers 35 %/25 % avec seuil 78 000 ; 2027+ : 45 % uniforme,
+// plafond 35 000/an). La tranche FP n'est pas une retenue : c'est la déduction
+// fiscale qui abaisse le SNI (affichage positif dans le comparateur, T3).
+// ---------------------------------------------------------------------------
+
+export interface ResultatFP {
+  fp: number;
+  fpPlafonne: boolean;
+  taux: number;
+}
+
+export function fraisPro(sbi: number, tranches: TrancheFP[]): ResultatFP {
+  const tranche = findTrancheFP(sbi * 12, tranches);
+  const brutFp = sbi * tranche.taux;
+  const plafondMensuel = tranche.plafondAnnuel / 12;
+  return {
+    fp: pos2(Math.min(brutFp, plafondMensuel)),
+    fpPlafonne: brutFp >= plafondMensuel,
+    taux: tranche.taux,
+  };
+}
+
+export function calcMensuel(inp: Inputs): Resultat {
+  const annee = inp.annee ?? ANNEE_COURANTE;
+  const bareme = getBareme(annee);
+  const ref = inp.refDate ?? new Date();
   const brutBase = Math.max(0, inp.brutBase || 0);
   const panier = Math.max(0, inp.panier || 0);
   const transport = Math.max(0, inp.transport || 0);
-  const nbCharges = Math.min(6, Math.max(0, Math.floor(inp.nbCharges || 0)));
+  const nbCharges = Math.min(FAMILLE.maxPersonnes, Math.max(0, Math.floor(inp.nbCharges || 0)));
   const tauxCimr = Math.min(100, Math.max(0, inp.tauxCimr || 0));
 
   const anciennete = getAnciennete(inp.dateEmbauche, ref);
@@ -184,21 +216,8 @@ export function calcMensuel(inp: Inputs): Resultat {  const ref = inp.refDate ??
   const brutMajore = pos2(brutBase + primeAnc);
   const { imposable: sbi, gains: totalGains } = assiettes(brutMajore, panier, transport);
 
-  // FP — taux unique selon SBI annualisé
-  const sbiAn = sbi * 12;
-  let fp: number;
-  let fpPlafonne = false;
-  let tauxFP: number = FP.tauxBas;
-  if (sbiAn <= FP.seuilAnnuel) {
-    const brut = sbi * FP.tauxBas;
-    fp = pos2(Math.min(brut, FP.plafBasMensuel));
-    fpPlafonne = brut >= FP.plafBasMensuel;
-  } else {
-    tauxFP = FP.tauxHaut;
-    const brut = sbi * FP.tauxHaut;
-    fp = pos2(Math.min(brut, FP.plafHautMensuel));
-    fpPlafonne = brut >= FP.plafHautMensuel;
-  }
+  // FP — D9 : tranches génériques du millésime
+  const { fp, fpPlafonne, taux: tauxFP } = fraisPro(sbi, bareme.fp);
 
   const cnss = pos2(Math.min(sbi, CNSS.plafond) * CNSS.taux);
   const amo = inp.amoOui ? pos2(sbi * AMO.taux) : 0;
@@ -208,7 +227,7 @@ export function calcMensuel(inp: Inputs): Resultat {  const ref = inp.refDate ??
 
   const sni = pos2(sbi - fp - cnss - amo - cimr);
 
-  const { brut: irBrut, tranche, index: trancheIndex } = impotTranche(sni, IR_MENSUEL);
+  const { brut: irBrut, tranche, index: trancheIndex } = impotTranche(sni, bareme.irMensuel);
 
   const familleDed = pos2(Math.min(nbCharges * FAMILLE.parPersonneMois, FAMILLE.plafondMois));
   const irNet = pos2(irBrut - familleDed);
@@ -218,7 +237,7 @@ export function calcMensuel(inp: Inputs): Resultat {  const ref = inp.refDate ??
 
   // Contrôle annuel IR (barème annuel sur SNI annualisé)
   const sniAn = round2(sni * 12);
-  const { brut: irAnnuelControle } = impotTranche(sniAn, IR_ANNUEL);
+  const { brut: irAnnuelControle } = impotTranche(sniAn, bareme.irAnnuel);
 
   const annual = {
     primeAnc: pos2(primeAnc * 12),
@@ -264,6 +283,8 @@ export function calcMensuel(inp: Inputs): Resultat {  const ref = inp.refDate ??
     trancheIndex,
     tauxFP,
     tauxIR: tranche.taux,
+    annee: bareme.annee,
+    statut: bareme.statut,
     annual,
     irAnnuelControle,
     anciennete,
@@ -314,4 +335,77 @@ export function lignesPaie(r: Resultat, e: EntreesLignes): LignePaie[] {
     { id: 'ir-net', label: 'IR net', mensuel: retenue(r.irNet), annuel: retenue(r.annual.irNet), accent: true },
     { id: 'net', label: 'Net à payer', mensuel: r.net, annuel: r.annual.net, accent: true },
   ];
+}
+
+// ---------------------------------------------------------------------------
+// I2 — modèle de lignes du bulletin COMPARÉ (2 millésimes + écart). Même
+// principe que lignesPaie (C1) : le savoir de présentation vit ici, la page
+// ne fait que rendre. FP affiché POSITIF (déduction fiscale qui abaisse l'IR,
+// pas une retenue — décision T3) ; l'écart n'est coloré que sur IR brut /
+// IR net / Net (colore) — FP/SNI restent neutres.
+// ---------------------------------------------------------------------------
+
+export interface LigneComparateur {
+  id: string;
+  label: string;
+  /** Suffixe de taux du libellé : ' · 25 %' ou ' · 25 % → 45 %' si le millésime change. */
+  labelTaux?: string;
+  /** Millésime de référence (2026) — mensuel. */
+  a: number;
+  /** Millésime comparé — mensuel. */
+  b: number;
+  annuelA: number | null;
+  annuelB: number | null;
+  /** Écart mensuel b − a (round2). */
+  ecart: number;
+  /** Écart en % de |a| (même signe que l'écart MAD) — null si a = 0 ou écart nul. */
+  ecartPct: number | null;
+  /** Écart annuel ligne à ligne — null si non annualisable (famille). */
+  ecartAnnuel: number | null;
+  /** Écart annuel en % de |a| annuel — null si non annualisable ou écart nul. */
+  ecartAnnuelPct: number | null;
+  /** Colore l'écart (IR brut, IR net, Net à payer). */
+  colore: boolean;
+  /** Ligne mise en évidence (sous-totaux, net). */
+  accent?: boolean;
+}
+
+/** Écart + % relatif (signe = signe de l'écart, base = |a|). */
+const ecartDe = (x: number, y: number): { ecart: number; pct: number | null } => {
+  const d = round2(y - x);
+  return { ecart: d, pct: d === 0 || x === 0 ? null : round2((d / Math.abs(x)) * 100) };
+};
+
+export function lignesComparateur(a: Resultat, b: Resultat, e: EntreesLignes): LigneComparateur[] {
+  const suffixe = (ta: number | undefined, tb: number | undefined): string | undefined => {
+    if (ta === undefined && tb === undefined) return undefined;
+    return ta === tb ? ` · ${court(ta!)} %` : ` · ${court(ta!)} % → ${court(tb!)} %`;
+  };
+  const lignes = [
+    { id: 'brut-majore', label: 'Brut majoré (base + ancienneté)', a: a.brutMajore, b: b.brutMajore, annuelA: a.annual.brutMajore, annuelB: b.annual.brutMajore, colore: false },
+    { id: 'prime-anc', label: 'Prime ancienneté', a: a.primeAnc, b: b.primeAnc, annuelA: a.annual.primeAnc, annuelB: b.annual.primeAnc, colore: false },
+    { id: 'sbi', label: 'SBI = brut majoré (base imposable)', a: a.sbi, b: b.sbi, annuelA: a.annual.sbi, annuelB: b.annual.sbi, colore: false, accent: true },
+    { id: 'total-gains', label: 'Total gains (SBI + panier + transport)', a: a.totalGains, b: b.totalGains, annuelA: a.annual.totalGains, annuelB: b.annual.totalGains, colore: false },
+    { id: 'fp', label: 'Frais professionnels (déduction fiscale)', labelTaux: suffixe(a.tauxFP * 100, b.tauxFP * 100), a: a.fp, b: b.fp, annuelA: a.annual.fp, annuelB: b.annual.fp, colore: false },
+    { id: 'cnss', label: `CNSS (plaf. ${court(CNSS.plafond)})`, labelTaux: ` · ${court(CNSS.taux * 100)} %`, a: retenue(a.cnss), b: retenue(b.cnss), annuelA: retenue(a.annual.cnss), annuelB: retenue(b.annual.cnss), colore: false },
+    { id: 'amo', label: 'AMO', labelTaux: e.amoOui ? ` · ${court(AMO.taux * 100)} %` : undefined, a: retenue(a.amo), b: retenue(b.amo), annuelA: retenue(a.annual.amo), annuelB: retenue(b.annual.amo), colore: false },
+    { id: 'cimr', label: 'CIMR', labelTaux: e.tauxCimr > 0 ? ` · ${court(e.tauxCimr)} %` : undefined, a: retenue(a.cimr), b: retenue(b.cimr), annuelA: retenue(a.annual.cimr), annuelB: retenue(b.annual.cimr), colore: false },
+    { id: 'sni', label: 'SNI (assiette IR)', a: a.sni, b: b.sni, annuelA: a.annual.sni, annuelB: b.annual.sni, colore: false, accent: true },
+    { id: 'ir-brut', label: 'IR brut', labelTaux: suffixe(a.tauxIR * 100, b.tauxIR * 100), a: retenue(a.irBrut), b: retenue(b.irBrut), annuelA: retenue(a.annual.irBrut), annuelB: retenue(b.annual.irBrut), colore: true },
+    { id: 'famille', label: `Déduction famille (${e.nbCharges} pers.)`, a: a.familleDed, b: b.familleDed, annuelA: null, annuelB: null, colore: false },
+    { id: 'ir-net', label: 'IR net', a: retenue(a.irNet), b: retenue(b.irNet), annuelA: retenue(a.annual.irNet), annuelB: retenue(b.annual.irNet), colore: true, accent: true },
+    { id: 'net', label: 'Net à payer', a: a.net, b: b.net, annuelA: a.annual.net, annuelB: b.annual.net, colore: true, accent: true },
+  ];
+  return lignes.map((l) => {
+    const m = ecartDe(l.a, l.b);
+    const ann =
+      l.annuelA !== null && l.annuelB !== null ? ecartDe(l.annuelA, l.annuelB) : null;
+    return {
+      ...l,
+      ecart: m.ecart,
+      ecartPct: m.pct,
+      ecartAnnuel: ann?.ecart ?? null,
+      ecartAnnuelPct: ann?.pct ?? null,
+    };
+  });
 }

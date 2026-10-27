@@ -4,8 +4,7 @@ salaire-net-app/dist/
 salaire-net-app/dist-ssr/
 
 # Artefacts de test — régénérés à chaque run
-salaire-net-app/e2e.png
-salaire-net-app/e2e-mobile.png
+salaire-net-app/e2e*.png
 salaire-net-app/coverage/
 salaire-net-app/test-results/
 salaire-net-app/playwright-report/

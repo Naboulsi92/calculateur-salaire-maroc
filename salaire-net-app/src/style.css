@@ -78,12 +78,38 @@
   select#cimr { min-height: 44px; }
   .slip { position: relative; overflow: hidden; container-type: inline-size; }
   .nets { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr)); gap: 12px; margin: 6px 0 12px; }
-  .net-main, .net-alt { border: 1.5px solid var(--ink); border-radius: 12px; padding: 12px 14px; min-width: 0; }
+  .net-main, .net-alt, .net-ecart { border: 1.5px solid var(--ink); border-radius: 12px; padding: 12px 14px; min-width: 0; }
   .net-main { background: var(--ink); color: var(--paper); }
-  .net-main span, .net-alt span { font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.8; }
+  .net-main span, .net-alt span, .net-ecart span { font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.8; }
   .net-main strong { display: block; font-size: clamp(26px, 6vw, 34px); margin-top: 4px; }
   .net-alt { background: var(--saffron-soft); }
-  .net-alt strong { display: block; font-size: clamp(19px, 4.5vw, 24px); margin-top: 4px; }
+  .net-alt strong, .net-ecart strong { display: block; font-size: clamp(19px, 4.5vw, 24px); margin-top: 4px; }
+  .net-ecart { background: #fff; }
+  .net-ecart strong.pos { color: var(--emerald-deep); }
+  .net-ecart strong.neg { color: var(--clay); }
+  .net-ecart small { display: block; margin-top: 2px; font-size: 11.5px; color: var(--muted); }
+  /* I2 — comparateur : chips d'années, écarts ligne à ligne, bandeau projet. */
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 14px; }
+  .chip { font-family: var(--mono); font-size: 13px; border: 1.5px solid var(--ink); background: #fff; color: var(--ink); border-radius: 999px; padding: 9px 14px; min-height: 44px; cursor: pointer; }
+  .chip:hover { border-color: var(--emerald); }
+  .chip.on { background: var(--emerald); border-color: var(--emerald); color: #fff; }
+  .banner-projet { font-size: 13px; background: var(--saffron-soft); border: 1.5px solid var(--saffron); color: var(--ink-soft); border-radius: 10px; padding: 10px 12px; margin: 14px 0 0; }
+  /* D24 — bandeau d'entrée visible vers le comparateur (home). */
+  .bandeau { display: flex; align-items: center; gap: 10px; margin-top: 16px; padding: 10px 14px; background: var(--saffron-soft); border: 1.5px solid var(--saffron); border-radius: 10px; color: var(--ink); text-decoration: none; font-size: 14px; }
+  .bandeau .badge-nouveau { font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; background: var(--emerald); color: #fff; border-radius: 999px; padding: 4px 10px; white-space: nowrap; }
+  .bandeau-texte b { color: var(--emerald-deep); }
+  .bandeau-fleche { margin-left: auto; font-size: 18px; color: var(--emerald-deep); }
+  .bandeau:hover { border-color: var(--emerald); background: #f0e2bd; }
+  .ledger .ecart-pos { color: var(--emerald-deep); font-weight: 700; }
+  .ledger .ecart-neg { color: var(--clay); font-weight: 700; }
+  .ledger .ecart-nul { color: var(--muted); }
+  .ledger .ecart-sub { display: block; font-size: 10.5px; font-weight: 400; letter-spacing: 0; opacity: 0.85; }
+  .ledger tr.net-row td { font-weight: 700; background: #e9f2ec; border-top: 2px solid var(--emerald); }
+  .annual-line { font-size: 13px; color: var(--ink-soft); margin: 10px 0 0; }
+  .annual-line b { font-family: var(--mono); }
+  .annual-line b.pos { color: var(--emerald-deep); }
+  .annual-line b.neg { color: var(--clay); }
+  .note-fp { font-size: 12px; color: var(--muted); margin: 8px 0 0; }
   .mono { font-family: var(--mono); }
   .badges { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
   .badge { font-family: var(--mono); font-size: 12px; background: var(--emerald); color: #fff; border-radius: 999px; padding: 5px 10px; }
@@ -132,7 +158,7 @@
 @layer print {
   @media print {
     body { background: #fff; }
-    .form-card, .faq, .stamp { display: none; }
+    .form-card, .faq, .stamp, .chips, .note-fp, .bandeau { display: none; }
     .grid { grid-template-columns: 1fr; }
     .card, .net-main, .net-alt { box-shadow: none; }
     .net-main { background: #fff; color: #000; border-color: #000; }

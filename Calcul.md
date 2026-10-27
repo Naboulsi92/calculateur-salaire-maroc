@@ -1,6 +1,11 @@
 # Calcul — Base de vérité absolue — Salaire Net Maroc IR 2026
 
-> Version 1.2 (2026) — LF2026 (loi n°50-25) : barème IR inchangé (cf. NC DGI n°737),
+> Version 1.3 (27/10/2026) — **extension comparateur PLF 2027** (projet n° 60-26) :
+> les barèmes 2027–2031 (IR 5 puis 4 tranches, FP 45 % plafond 35 000, mensuel = annuel ÷ 12)
+> vivent dans `salaire-net-app/src/baremes.ts` (registre BAREMES, source vérifiée : plan.md §3).
+> Les **règles 2026 ci-dessous restent inchangées** et partagées par tous les millésimes
+> (CNSS, AMO, famille, ancienneté, SMIG) — seul IR+FP changent par année.
+> v1.2 (2026) — LF2026 (loi n°50-25) : barème IR inchangé (cf. NC DGI n°737),
 > foyer fiscal 600 MAD/an/pers. plaf. 3600. SMIG 2026 : 17,92/3422,72 (déc. 2.25.983).
 > v1.1 : panier/transport versés, exclus des bases. Net = Total gains − C − IR.
 > Toute divergence d'un bulletin réel doit être remontée ici avant modification du code.

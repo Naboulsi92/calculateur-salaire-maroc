@@ -1,15 +1,33 @@
 // D3 : source unique SEO — `npm run seo` (câblé dans `npm run build`).
 // Tout est RÉGÉNÉRÉ depuis scripts/site.mjs : aucune valeur SEO n'existe
 // ailleurs. Idempotent : relançable sans risque (les régions sont remplacées,
-// jamais les valeurs).
+// jamais les valeurs). I3 : stamping des 2 pages (home + comparateur).
 import { readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { ANNEE, DATE_MAJ, FAQ, PORTAILS, REFS_TEXTES, SITE_URL } from './site.mjs';
+import {
+  BANDEAU_COMPARATEUR,
+  BANDEAU_PROJET,
+  COMPARATEUR_FOOTER,
+  DATE_MAJ,
+  LIEN_COMPARATEUR,
+  PAGE_COMPARATEUR,
+  PAGE_HOME,
+  PORTAILS,
+  REFS_TEXTES,
+  SITE_URL,
+} from './site.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const esc = (s) =>
   s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+/** Lien externe : ouvre dans un nouvel onglet, sans referrer (D29). */
+const externe = (url, label) =>
+  `<a href="${url}" target="_blank" rel="noopener noreferrer">${label}</a>`;
+
+/** URL canonique d'une page (slug vide = racine). */
+const urlDe = (page) => (page.slug ? `${SITE_URL}/${page.slug}` : `${SITE_URL}/`);
 
 /** Garde-fou review : aucune écriture hors du projet, même si ROOT dérive. */
 function insideRoot(path) {
@@ -35,89 +53,127 @@ function region(path, name, body) {
 }
 
 // -- HEAD : title, description, canonical, robots, theme, OG (statiques pré-JS)
-const head = `    <title>Calcul Salaire Brut Net Maroc ${ANNEE} – Simulateur IR</title>
-    <meta name="description" content="Simulez votre salaire net au Maroc en ${ANNEE} : brut → net mensuel et annuel, IR, CNSS, AMO, CIMR. Calculateur gratuit, 100 % local." />
+function headPage(page) {
+  const url = urlDe(page);
+  const img = `${SITE_URL}/${page.ogImage}`;
+  return `    <title>${page.titre}</title>
+    <meta name="description" content="${page.description}" />
     <!-- Domaine : source unique scripts/site.mjs (commande npm run seo) -->
-    <link rel="canonical" href="${SITE_URL}/" />
+    <link rel="canonical" href="${url}" />
     <meta name="robots" content="index,follow,max-image-preview:large" />
     <meta name="theme-color" content="#0e6b4a" />
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="fr_MA" />
-    <meta property="og:url" content="${SITE_URL}/" />
-    <meta property="og:title" content="Calcul Salaire Brut Net Maroc ${ANNEE} – Simulateur IR" />
-    <meta property="og:description" content="Brut → net, IR, CNSS, AMO, CIMR : simulation gratuite, règles ${ANNEE}." />
-    <meta property="og:image" content="${SITE_URL}/og-calculateur-1200x630.png" />
+    <meta property="og:url" content="${url}" />
+    <meta property="og:title" content="${page.titre}" />
+    <meta property="og:description" content="${page.ogDescription}" />
+    <meta property="og:image" content="${img}" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Calcul Salaire Brut Net Maroc ${ANNEE} – Simulateur IR" />
-    <meta name="twitter:description" content="Brut → net, IR, CNSS, AMO, CIMR : simulation gratuite, règles ${ANNEE}." />
-    <meta name="twitter:image" content="${SITE_URL}/og-calculateur-1200x630.png" />`;
+    <meta name="twitter:title" content="${page.titre}" />
+    <meta name="twitter:description" content="${page.ogDescription}" />
+    <meta name="twitter:image" content="${img}" />`;
+}
 
 // -- FAQ corps (visible) — même source que le JSON-LD.
-const faqBody = FAQ.map(
-  ({ q, a }) => `      <div class="qa">
+const faqBody = (faq) =>
+  faq
+    .map(
+      ({ q, a }) => `      <div class="qa">
         <h3>${esc(q)}</h3>
         <p>${esc(a)}</p>
       </div>`,
-).join('\n');
+    )
+    .join('\n');
 
 // -- JSON-LD : WebApplication + FAQPage issus de la même source.
-const jsonLd = JSON.stringify(
-  {
-    '@context': 'https://schema.org',
-    '@graph': [
-      {
-        '@type': 'WebApplication',
-        name: `Calculateur Salaire Brut/Net Maroc ${ANNEE}`,
-        url: SITE_URL,
-        inLanguage: 'fr',
-        applicationCategory: 'FinanceApplication',
-        operatingSystem: 'Web',
-        isAccessibleForFree: true,
-        dateModified: DATE_MAJ,
-        offers: { '@type': 'Offer', price: '0', priceCurrency: 'MAD' },
-      },
-      {
-        '@type': 'FAQPage',
-        mainEntity: FAQ.map(({ q, a }) => ({
-          '@type': 'Question',
-          name: q,
-          acceptedAnswer: { '@type': 'Answer', text: a },
-        })),
-      },
-    ],
-  },
-  null,
-  2,
-)
-  .split('\n')
-  .map((l) => `    ${l}`)
-  .join('\n');
+const jsonLd = (page) =>
+  JSON.stringify(
+    {
+      '@context': 'https://schema.org',
+      '@graph': [
+        {
+          '@type': 'WebApplication',
+          name: page.nomApp,
+          url: page.slug ? urlDe(page) : SITE_URL,
+          inLanguage: 'fr',
+          applicationCategory: 'FinanceApplication',
+          operatingSystem: 'Web',
+          isAccessibleForFree: true,
+          dateModified: DATE_MAJ,
+          offers: { '@type': 'Offer', price: '0', priceCurrency: 'MAD' },
+        },
+        {
+          '@type': 'FAQPage',
+          mainEntity: page.faq.map(({ q, a }) => ({
+            '@type': 'Question',
+            name: q,
+            acceptedAnswer: { '@type': 'Answer', text: a },
+          })),
+        },
+      ],
+    },
+    null,
+    2,
+  )
+    .split('\n')
+    .map((l) => `    ${l}`)
+    .join('\n');
 
-// -- Footer : textes + portails issus de la même source.
-const footer = `      <span>Textes : <a href="https://www.tax.gov.ma">CGI/DGI</a> · ${esc(REFS_TEXTES.replace('CGI/DGI · ', ''))}</span>
-      <span>Portails : ${PORTAILS.map((p) => `<a href="${p.url}">${esc(p.nom)}</a>`).join(' · ')}</span>`;
+// -- Footers : maillage croisé (D4) + textes/portails de la même source.
+// Liens externes en nouvel onglet (D29), liens internes (maillage) inchangés.
+const footerHome = `      <span><a href="${LIEN_COMPARATEUR.href}">${esc(LIEN_COMPARATEUR.label)}</a></span>
+      <span>Textes : ${externe('https://www.tax.gov.ma', 'CGI/DGI')} · ${esc(REFS_TEXTES.replace('CGI/DGI · ', ''))}</span>
+      <span>Portails : ${PORTAILS.map((p) => `${externe(p.url, esc(p.nom))}`).join(' · ')}</span>`;
 
-// -- robots.txt / sitemap.xml : fichiers entièrement générés.
+const footerComp = `      <span>${esc(COMPARATEUR_FOOTER.disclaimer)}</span>
+      <span><a href="${COMPARATEUR_FOOTER.lienRetour.href}">${esc(COMPARATEUR_FOOTER.lienRetour.label)}</a> · Textes : ${externe(COMPARATEUR_FOOTER.texteLegal.url, esc(COMPARATEUR_FOOTER.texteLegal.label))}</span>`;
+
+// -- D24 : bandeau d'entrée visible vers le comparateur (home uniquement).
+const bandeauComp = `      <a class="bandeau" href="${LIEN_COMPARATEUR.href}">
+        <span class="badge-nouveau">${esc(BANDEAU_COMPARATEUR.badge)}</span>
+        <span class="bandeau-texte"><b>${esc(BANDEAU_COMPARATEUR.pitch)}</b> — ${esc(BANDEAU_COMPARATEUR.exemple)}</span>
+        <span class="bandeau-fleche" aria-hidden="true">→</span>
+      </a>`;
+
+// -- D26 : bandeau « projet non voté » du comparateur (source site.mjs, D19).
+const bandeauProjet = `        ⚠️ <b>${esc(BANDEAU_PROJET.titre)}</b> — ${esc(BANDEAU_PROJET.detail)}`;
+
+// -- robots.txt / sitemap.xml : fichiers entièrement générés (2 URL).
 const robots = `User-agent: *
 Allow: /
 Sitemap: ${SITE_URL}/sitemap.xml
 `;
+const URLS_SITEMAP = [
+  { loc: `${SITE_URL}/`, changefreq: 'yearly', priority: '1.0' },
+  { loc: urlDe(PAGE_COMPARATEUR), changefreq: 'monthly', priority: '0.9' },
+];
 const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>${SITE_URL}/</loc>
+${URLS_SITEMAP.map(
+  (u) => `  <url>
+    <loc>${u.loc}</loc>
     <lastmod>${DATE_MAJ}</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>1.0</priority>
-  </url>
+    <changefreq>${u.changefreq}</changefreq>
+    <priority>${u.priority}</priority>
+  </url>`,
+).join('\n')}
 </urlset>
 `;
 
-region('index.html', 'HEAD', head);
-region('index.html', 'FAQ-BODY', faqBody);
-region('index.html', 'FAQ-JSONLD', jsonLd);
-region('index.html', 'FOOTER', footer);
+// -- Stamping : mêmes 4 régions sur les 2 pages, footer spécifique par page.
+region('index.html', 'HEAD', headPage(PAGE_HOME));
+region('index.html', 'FAQ-BODY', faqBody(PAGE_HOME.faq));
+region('index.html', 'FAQ-JSONLD', jsonLd(PAGE_HOME));
+region('index.html', 'FOOTER', footerHome);
+region('index.html', 'BANDEAU', bandeauComp);
+region(PAGE_COMPARATEUR.slug, 'HEAD', headPage(PAGE_COMPARATEUR));
+region(PAGE_COMPARATEUR.slug, 'FAQ-BODY', faqBody(PAGE_COMPARATEUR.faq));
+region(PAGE_COMPARATEUR.slug, 'FAQ-JSONLD', jsonLd(PAGE_COMPARATEUR));
+region(PAGE_COMPARATEUR.slug, 'PROJET', bandeauProjet);
+region(PAGE_COMPARATEUR.slug, 'FOOTER', footerComp);
 writeFileSync(insideRoot('public/robots.txt'), robots);
 writeFileSync(insideRoot('public/sitemap.xml'), sitemap);
 
-console.log('SEO OK : index.html, robots.txt, sitemap.xml régénérés depuis scripts/site.mjs');
+console.log(
+  `SEO OK : index.html + ${PAGE_COMPARATEUR.slug}, robots.txt, sitemap.xml (2 URL) régénérés depuis scripts/site.mjs`,
+);
