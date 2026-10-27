@@ -69,8 +69,9 @@ describe('site — source unique SEO (D3)', () => {
 });
 
 describe('comparateur — source unique SEO page 2 (D12–D15)', () => {
-  it('slug dédié + titre à mot-clé + OG propre', () => {
-    expect(PAGE_COMPARATEUR.slug).toBe('salaire-net-2027.html');
+  it('chemin public sans extension + fichier dist + titre à mot-clé + OG propre', () => {
+    expect(PAGE_COMPARATEUR.chemin).toBe('salaire-net-2027');
+    expect(PAGE_COMPARATEUR.fichier).toBe('salaire-net-2027.html');
     expect(PAGE_COMPARATEUR.titre).toContain(`Salaire net ${ANNEE_CIBLE} vs ${ANNEE}`);
     expect(PAGE_COMPARATEUR.titre).toContain('PLF');
     expect(PAGE_COMPARATEUR.description.length).toBeGreaterThanOrEqual(50);
@@ -97,7 +98,7 @@ describe('comparateur — source unique SEO page 2 (D12–D15)', () => {
   });
 
   it('maillage croisé home ↔ comparateur (D4)', () => {
-    expect(LIEN_COMPARATEUR.href).toBe(`/${PAGE_COMPARATEUR.slug}`);
+    expect(LIEN_COMPARATEUR.href).toBe(`/${PAGE_COMPARATEUR.chemin}`);
     expect(LIEN_COMPARATEUR.label).toContain('comparateur');
     expect(COMPARATEUR_FOOTER.lienRetour.href).toBe('/');
     expect(COMPARATEUR_FOOTER.lienRetour.label).toContain('Simulateur');

@@ -26,8 +26,8 @@ const esc = (s) =>
 const externe = (url, label) =>
   `<a href="${url}" target="_blank" rel="noopener noreferrer">${label}</a>`;
 
-/** URL canonique d'une page (slug vide = racine). */
-const urlDe = (page) => (page.slug ? `${SITE_URL}/${page.slug}` : `${SITE_URL}/`);
+/** URL publique d'une page (chemin vide = racine ; sans extension, cf. site.mjs). */
+const urlDe = (page) => (page.chemin ? `${SITE_URL}/${page.chemin}` : `${SITE_URL}/`);
 
 /** Garde-fou review : aucune écriture hors du projet, même si ROOT dérive. */
 function insideRoot(path) {
@@ -96,7 +96,7 @@ const jsonLd = (page) =>
         {
           '@type': 'WebApplication',
           name: page.nomApp,
-          url: page.slug ? urlDe(page) : SITE_URL,
+          url: page.chemin ? urlDe(page) : SITE_URL,
           inLanguage: 'fr',
           applicationCategory: 'FinanceApplication',
           operatingSystem: 'Web',
@@ -168,14 +168,14 @@ region('index.html', 'FAQ-BODY', faqBody(PAGE_HOME.faq));
 region('index.html', 'FAQ-JSONLD', jsonLd(PAGE_HOME));
 region('index.html', 'FOOTER', footerHome);
 region('index.html', 'BANDEAU', bandeauComp);
-region(PAGE_COMPARATEUR.slug, 'HEAD', headPage(PAGE_COMPARATEUR));
-region(PAGE_COMPARATEUR.slug, 'FAQ-BODY', faqBody(PAGE_COMPARATEUR.faq));
-region(PAGE_COMPARATEUR.slug, 'FAQ-JSONLD', jsonLd(PAGE_COMPARATEUR));
-region(PAGE_COMPARATEUR.slug, 'PROJET', bandeauProjet);
-region(PAGE_COMPARATEUR.slug, 'FOOTER', footerComp);
+region(PAGE_COMPARATEUR.fichier, 'HEAD', headPage(PAGE_COMPARATEUR));
+region(PAGE_COMPARATEUR.fichier, 'FAQ-BODY', faqBody(PAGE_COMPARATEUR.faq));
+region(PAGE_COMPARATEUR.fichier, 'FAQ-JSONLD', jsonLd(PAGE_COMPARATEUR));
+region(PAGE_COMPARATEUR.fichier, 'PROJET', bandeauProjet);
+region(PAGE_COMPARATEUR.fichier, 'FOOTER', footerComp);
 writeFileSync(insideRoot('public/robots.txt'), robots);
 writeFileSync(insideRoot('public/sitemap.xml'), sitemap);
 
 console.log(
-  `SEO OK : index.html + ${PAGE_COMPARATEUR.slug}, robots.txt, sitemap.xml (2 URL) régénérés depuis scripts/site.mjs`,
+  `SEO OK : index.html + ${PAGE_COMPARATEUR.fichier}, robots.txt, sitemap.xml (2 URL) régénérés depuis scripts/site.mjs`,
 );

@@ -7,6 +7,11 @@
 // `not_found_handling: 404-page` = les chemins inconnus servent dist/404.html
 // avec le statut 404 (plus propre pour le SEO que le fallback SPA par défaut,
 // qui renvoyait index.html avec 200).
+// html_handling reste au défaut « auto-trailing-slash » : /salaire-net-2027.html
+// renvoie 307 vers /salaire-net-2027 — c'est l'URL sans extension qui est
+// canonique (canonical, sitemap, maillage internes la désignent) ; tenter
+// html_handling « none » casse la racine ( / ne résout plus index.html,
+// constaté en production le 27/10/2026).
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "calculateur-salaire-maroc",
@@ -16,12 +21,6 @@
   },
   "assets": {
     "directory": "./dist",
-    // `html_handling: none` = `.html` servi tel quel (200), aucune normalisation
-    // d'URL. Le défaut « auto-trailing-slash » renvoyait 307 de
-    // /salaire-net-2027.html vers /salaire-net-2027, en contradiction avec le
-    // canonical, le sitemap et le maillage interne (tous en .html) — audit
-    // OpenSEO 27/10/2026. Avec « none », l'URL canonique est celle servie.
-    "html_handling": "none",
     "not_found_handling": "404-page"
   }
 }

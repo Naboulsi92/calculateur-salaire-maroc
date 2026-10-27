@@ -4,7 +4,7 @@
 import { chromium } from '@playwright/test';
 import { PREVIEW_URL } from './bulletin-ref.mjs';
 
-const URL_COMPARATEUR = new URL('salaire-net-2027.html', PREVIEW_URL).href;
+const URL_COMPARATEUR = new URL('salaire-net-2027', PREVIEW_URL).href;
 const attendre = (ms) => new Promise((r) => setTimeout(r, ms));
 const norm = (s) => s.replace(/[\s.]/g, '');
 
@@ -95,12 +95,12 @@ console.log('screenshot: e2e-comparateur.png OK');
 await page.goto(PREVIEW_URL, { waitUntil: 'domcontentloaded' });
 await attendre(300);
 const bandeauHref = await page.locator('a.bandeau').getAttribute('href');
-if (bandeauHref !== '/salaire-net-2027.html') throw new Error(`Bandeau href inattendu: ${bandeauHref}`);
-if (!(await page.locator('footer.foot a[href="/salaire-net-2027.html"]').count())) {
+if (bandeauHref !== '/salaire-net-2027') throw new Error(`Bandeau href inattendu: ${bandeauHref}`);
+if (!(await page.locator('footer.foot a[href="/salaire-net-2027"]').count())) {
   throw new Error('Lien footer home → comparateur absent');
 }
 await page.locator('a.bandeau').click();
-await page.waitForURL('**/salaire-net-2027.html');
+await page.waitForURL('**/salaire-net-2027');
 if (!(await page.locator('footer.foot a[href="/"]').count())) {
   throw new Error('Lien retour comparateur → home absent');
 }

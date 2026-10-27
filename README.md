@@ -7,7 +7,7 @@ TypeScript, zéro backend, 100 % local).
 ## 🌐 En ligne
 
 - **Simulateur 2026** — https://calculateur-salaire-maroc.naboulsi-riyad.workers.dev/
-- **Comparateur 2027 vs 2026 (PLF 2027)** — https://calculateur-salaire-maroc.naboulsi-riyad.workers.dev/salaire-net-2027.html
+- **Comparateur 2027 vs 2026 (PLF 2027)** — https://calculateur-salaire-maroc.naboulsi-riyad.workers.dev/salaire-net-2027
 
 Déploiement auto (Cloudflare Workers Builds) à chaque push sur `master`.
 

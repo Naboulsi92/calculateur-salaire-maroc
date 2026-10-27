@@ -9,7 +9,7 @@ golden tests (`tests/baremes-2027.test.ts`, `tests/calcul.test.ts`).
 **2 pages** (build multi-pages) :
 
 - `/` — simulateur IR 2026 (barèmes en vigueur)
-- `/salaire-net-2027.html` — comparateur 2027+ vs 2026 (chips 2027–2031, badge
+- `/salaire-net-2027` — comparateur 2027+ vs 2026 (chips 2027–2031, badge
   « projet non voté » tant que le PLF n'est pas promulgué)
 
 Production : https://calculateur-salaire-maroc.naboulsi-riyad.workers.dev/

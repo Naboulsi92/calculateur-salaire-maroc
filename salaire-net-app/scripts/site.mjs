@@ -54,9 +54,14 @@ export const FAQ_COMPARATEUR = [
   },
 ];
 
-/** Métadonnées de la page comparateur (slug D12, indexation immédiate D13). */
+/** Métadonnées de la page comparateur. `fichier` = fichier dist (stamping) ;
+ * `chemin` = URL publique servie par Cloudflare — SANS extension : le
+ * html_handling par défaut (auto-trailing-slash) redirige /x.html (307) vers /x,
+ * donc les canonical/sitemap/maillage désignent l'URL sans extension, seule
+ * servie en 200. Audit OpenSEO 27/10/2026 (contradiction canonical/307). */
 export const PAGE_COMPARATEUR = {
-  slug: 'salaire-net-2027.html',
+  fichier: 'salaire-net-2027.html',
+  chemin: 'salaire-net-2027',
   titre: `Salaire net ${ANNEE_CIBLE} vs ${ANNEE} au Maroc — comparateur IR PLF ${ANNEE_CIBLE}`,
   description: `Comparez votre salaire net ${ANNEE_CIBLE} vs ${ANNEE} au Maroc : barèmes IR du PLF ${ANNEE_CIBLE}, exonération 60 000 DH, écart mensuel et annuel ligne à ligne. Gratuit.`,
   ogDescription: `Votre net ${ANNEE_CIBLE} vs ${ANNEE}, ligne à ligne : barèmes IR du PLF ${ANNEE_CIBLE}, frais professionnels 45 %, écart mensuel et annuel.`,
@@ -78,7 +83,7 @@ export const PAGE_HOME = {
 
 /** D4/T4 — maillage : lien visible home → comparateur (footer stampé). */
 export const LIEN_COMPARATEUR = {
-  href: `/${PAGE_COMPARATEUR.slug}`,
+  href: `/${PAGE_COMPARATEUR.chemin}`,
   label: `Salaire net ${ANNEE_CIBLE} vs ${ANNEE} — comparateur (PLF ${ANNEE_CIBLE})`,
 };
 
