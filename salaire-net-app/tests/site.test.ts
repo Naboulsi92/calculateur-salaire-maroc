@@ -1,4 +1,6 @@
 import { describe, expect, it } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import {
   ANNEE,
   ANNEE_CIBLE,
@@ -14,6 +16,32 @@ import {
   REFS_TEXTES,
   SITE_URL,
 } from '../scripts/site.mjs';
+
+const RACINE_APP = join(import.meta.dirname, '..');
+
+/** Le JSON-LD servi doit être parsable : aucun commentaire HTML dans le
+ * <script> (bug audit production : marqueurs SEO à l'intérieur du script). */
+describe('JSON-LD servi — parsable par les moteurs (audit production)', () => {
+  for (const [nom, page] of [
+    ['index.html', PAGE_HOME],
+    ['salaire-net-2027.html', PAGE_COMPARATEUR],
+  ] as const) {
+    it(`${nom} : graphe WebApplication + FAQPage (${page.faq.length} questions)`, () => {
+      const html = readFileSync(join(RACINE_APP, nom), 'utf8');
+      const bloc = html.match(
+        /<script type="application\/ld\+json">([\s\S]*?)<\/script>/,
+      );
+      expect(bloc, 'bloc JSON-LD présent').not.toBeNull();
+      const graphe = JSON.parse(bloc![1]); // lève si commentaire HTML dedans
+      expect(graphe['@graph'].map((n: { '@type': string }) => n['@type'])).toEqual([
+        'WebApplication',
+        'FAQPage',
+      ]);
+      const faq = graphe['@graph'].find((n: { '@type': string }) => n['@type'] === 'FAQPage');
+      expect(faq.mainEntity).toHaveLength(page.faq.length);
+    });
+  }
+});
 
 describe('site — source unique SEO (D3)', () => {
   it('URL et dates valides', () => {

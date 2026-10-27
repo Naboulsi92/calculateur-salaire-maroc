@@ -85,9 +85,11 @@ const faqBody = (faq) =>
     )
     .join('\n');
 
-// -- JSON-LD : WebApplication + FAQPage issus de la même source.
+// -- JSON-LD : WebApplication + FAQPage issus de la même source. Les marqueurs
+// SEO:FAQ-JSONLD entourent le <script> COMPLET : jamais de commentaire HTML
+// dans le JSON servi (sinon Google ne peut pas parser le graphe).
 const jsonLd = (page) =>
-  JSON.stringify(
+  `    <script type="application/ld+json">\n${JSON.stringify(
     {
       '@context': 'https://schema.org',
       '@graph': [
@@ -117,7 +119,7 @@ const jsonLd = (page) =>
   )
     .split('\n')
     .map((l) => `    ${l}`)
-    .join('\n');
+    .join('\n')}\n    </script>`;
 
 // -- Footers : maillage croisé (D4) + textes/portails de la même source.
 // Liens externes en nouvel onglet (D29), liens internes (maillage) inchangés.
