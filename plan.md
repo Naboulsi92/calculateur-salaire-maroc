@@ -309,6 +309,11 @@ i18n/interface arabe.
   config présent, wrangler saute l'auto-setup et déploie dist/ tel quel. Dry-run local
   vert (13 fichiers vus). Le plugin Vite Cloudflare n'est PAS ajouté (il transformerait
   le MPA statique en worker bundle). README corrigé (Workers Builds, pas Pages).
+- **27/10/2026 (13)** — wrangler **épinglé** en devDependency (4.154.0 exact) : le deploy
+  CI n'installe plus une version au fil de l'eau via npx — déterminisme et immunisation aux
+  changements upstream. Dry-run vert (13 fichiers), 77/77 tests, build vert. Note : les
+  postinstall `esbuild`/`workerd` sont bloqués par la politique locale allowScripts — sans
+  effet sur `deploy` (workerd ne sert qu'à `wrangler dev`).
 
 ---
 
