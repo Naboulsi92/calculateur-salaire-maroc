@@ -8,6 +8,7 @@ export default defineConfig({
       input: {
         index: fileURLToPath(new URL('./index.html', import.meta.url)),
         comparateur: fileURLToPath(new URL('./salaire-net-2027.html', import.meta.url)),
+        notfound: fileURLToPath(new URL('./404.html', import.meta.url)),
       },
     },
   },

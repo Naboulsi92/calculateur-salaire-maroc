@@ -4,9 +4,9 @@
 // vite.config) qui échoue — notre build est un MPA statique (vite build → dist/
 // 2 pages), servi tel quel via assets.directory. Ne pas ajouter le plugin Vite
 // Cloudflare : il transformerait le build MPA en worker bundle.
-// `not_found_handling: single-page-application` = choix par défaut de wrangler
-// (fallback index.html sur les chemins inconnus) — conservé pour ne pas changer
-// le comportement production.
+// `not_found_handling: 404-page` = les chemins inconnus servent dist/404.html
+// avec le statut 404 (plus propre pour le SEO que le fallback SPA par défaut,
+// qui renvoyait index.html avec 200).
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "calculateur-salaire-maroc",
@@ -16,6 +16,6 @@
   },
   "assets": {
     "directory": "./dist",
-    "not_found_handling": "single-page-application"
+    "not_found_handling": "404-page"
   }
 }

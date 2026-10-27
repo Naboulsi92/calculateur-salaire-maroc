@@ -120,7 +120,7 @@ function recalc(): void {
     if (r.fpPlafonne) {
       const fp = document.createElement('span');
       fp.className = 'badge ghost';
-      fp.textContent = `FP plafonné ${annee} · ${mad(r.fp)}`;
+      fp.textContent = `FP plafonné ${annee} · ${montant(r.fp)}`;
       badges.appendChild(fp);
     }
   }
