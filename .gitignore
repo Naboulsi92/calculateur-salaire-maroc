@@ -22,6 +22,9 @@ logs/
 *.log
 npm-debug.log*
 
+# Source
+docs/
+
 # OS & éditeurs
 Thumbs.db
 .DS_Store
