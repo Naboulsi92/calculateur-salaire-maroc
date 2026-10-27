@@ -12,7 +12,9 @@ professionnels, foyer fiscal 600/pers.). Référence des règles :
   « projet non voté » tant que le PLF n'est pas promulgué)
 
 Production : https://calculateur-salaire-maroc.naboulsi-riyad.workers.dev/
-(déploiement auto Cloudflare Pages à chaque push sur `master`).
+(déploiement auto Cloudflare **Workers Builds** à chaque push sur `master` :
+`npm run build` puis `npx wrangler deploy` — la config de déploiement vit dans
+[`wrangler.jsonc`](wrangler.jsonc), qui sert `dist/` tel quel en assets statiques).
 
 ## Commandes
 

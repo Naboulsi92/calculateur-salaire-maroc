@@ -298,6 +298,17 @@ i18n/interface arabe.
   écart annuel rendus, #net-ecart-pct, warning 2031 (chip 2031 + indemnités), _blank sur
   CNSS/DamanCom/CIMR/CGI-DGI uniquement (maillage interne inchangé), home non régressée
   (SMIG 3 422,72, net 4 192,03). Capture : `docs/wayfinder/captures/i5-corrections-comparateur.png`.
+- **27/10/2026 (12)** — **Correctif déploiement CI**. Push 8af4598 : build Workers Builds
+  vert (SEO + tsc + Vite, 2 pages) mais `npx wrangler deploy` en échec — wrangler 4.154.0
+  (non épinglé, installé par npx) détecte « Framework: Vite » et tente son auto-setup
+  (installer @cloudflare/vite-plugin, patcher vite.config) qui plante sur l'absence de
+  tableau `plugins` dans le vite.config multi-pages (« Cannot modify Vite config »).
+  Fix : `salaire-net-app/wrangler.jsonc` committé (nom, compatibility_date 2026-10-23,
+  observability, assets.directory ./dist, not_found_handling single-page-application =
+  choix par défaut de wrangler, comportement production préservé) — avec un fichier de
+  config présent, wrangler saute l'auto-setup et déploie dist/ tel quel. Dry-run local
+  vert (13 fichiers vus). Le plugin Vite Cloudflare n'est PAS ajouté (il transformerait
+  le MPA statique en worker bundle). README corrigé (Workers Builds, pas Pages).
 
 ---
 
