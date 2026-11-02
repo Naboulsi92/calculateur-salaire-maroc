@@ -40,6 +40,12 @@ let anneeCible = CHIPS[0]!; // 2027 par défaut
 
 const signe = (n: number): string => (n > 0 ? '+' : '−');
 
+/** Préfixe de signe normalisé + nombre formaté. La fonction qui formate un
+ * écart (montant ou %) passe par ici : le double signe SNI du 02/11 venait
+ * précisément de ce couple recopié à la main à quatre endroits. */
+const signeEt = (n: number, fmt: (x: number) => string): string =>
+  `${signe(n)}${fmt(Math.abs(n))}`;
+
 /** Cellules d'écart (l.4 = MAD + sous-ligne « an : », l.5 = %). Gris neutre
  * sauf sur les lignes colorées (IR/Net/Net annuel, T3). % SIGNÉ par rapport à
  * |2026| (mensuel ; annuel sur la ligne annuelle). */
@@ -58,16 +64,16 @@ function cellulesEcart(l: LigneComparateur): [HTMLTableCellElement, HTMLTableCel
   const cls = l.colore ? (l.ecart > 0 ? 'ecart-pos' : 'ecart-neg') : 'ecart-nul';
   tdD.classList.add(cls);
   tdP.classList.add(cls);
-  tdD.textContent = `${signe(l.ecart)}${montant(Math.abs(l.ecart))}`;
+  tdD.textContent = signeEt(l.ecart, montant);
   if (l.ecartAnnuel !== null && l.ecartAnnuel !== 0) {
     const sub = document.createElement('span');
     sub.className = 'ecart-sub';
-    sub.textContent = `an : ${signe(l.ecartAnnuel)}${montant(Math.abs(l.ecartAnnuel))}`;
+    sub.textContent = `an : ${signeEt(l.ecartAnnuel, montant)}`;
     tdD.appendChild(sub);
   }
-  // % signé par le glyphe signe() + valeur absolue : écartPct porte déjà le
-  // signe par le calcul, préfixer à nouveau doublait le « - » (SNI 02/11).
-  tdP.textContent = l.ecartPct === null ? '—' : `${signe(l.ecart)}${pct(Math.abs(l.ecartPct))}`;
+  // % signé : écartPct porte déjà le signe par le calcul, préfixer le montant
+  // signé à nouveau doublait le « - » (SNI 02/11) — on signe donc à partir de |pct|.
+  tdP.textContent = l.ecartPct === null ? '—' : signeEt(l.ecartPct, pct);
   return [tdD, tdP];
 }
 
@@ -104,7 +110,7 @@ function recalc(): void {
   netA.textContent = mad(rA.net);
   netB.textContent = mad(rB.net);
   const ecart = round2(rB.net - rA.net);
-  netEcart.textContent = `${ecart === 0 ? '' : signe(ecart)}${montant(Math.abs(ecart))}`;
+  netEcart.textContent = ecart === 0 ? montant(ecart) : signeEt(ecart, montant);
   netEcart.classList.toggle('pos', ecart > 0);
   netEcart.classList.toggle('neg', ecart < 0);
   netEcartPct.textContent = ecart === 0 || rA.net === 0 ? '' : `≈ ${pct(round2((ecart / rA.net) * 100))}`;

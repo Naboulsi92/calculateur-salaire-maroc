@@ -1,5 +1,5 @@
 // D1 : check responsive multi-largeurs via le harnais partagé.
-import { ouvrirCalculateur } from './helpers.mjs';
+import { capture, ouvrirCalculateur } from './helpers.mjs';
 
 const widths = [320, 480, 700, 1024];
 for (const width of widths) {
@@ -30,7 +30,6 @@ const scrollable = await page.evaluate(() => {
 console.log('table-scroll 320px:', JSON.stringify(scrollable));
 if (!scrollable.canScroll) throw new Error('.table-scroll ne défile pas à 320px');
 if (!scrollable.tabbable) throw new Error('.table-scroll non atteignable au clavier');
-await page.screenshot({ path: 'e2e-mobile.png', fullPage: true });
-console.log('screenshot: e2e-mobile.png OK');
+await capture(page, 'e2e-mobile.png');
 await browser.close();
 console.log('RESPONSIVE OK');

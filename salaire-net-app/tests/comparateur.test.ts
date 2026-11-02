@@ -2,7 +2,7 @@
 // FP affiché POSITIF (déduction fiscale, T3) · écart coloré uniquement IR/Net (T3) ·
 // écart-net = −(écart-IR) par construction (CNSS/AMO/gains identiques entre millésimes).
 import { describe, expect, it } from 'vitest';
-import { calcMensuel, lignesComparateur, round2, type Inputs } from '../src/calcul';
+import { calcMensuel, lignesComparateur, round2 } from '../src/calcul';
 import { entreesLignes, profil } from './profil';
 
 const r26 = calcMensuel(profil(10000, { annee: 2026 }));

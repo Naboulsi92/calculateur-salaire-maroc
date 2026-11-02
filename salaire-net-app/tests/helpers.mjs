@@ -1,6 +1,20 @@
 // D1 : harnais e2e partagé — les scénarios deviennent des adapters fins.
 import { chromium } from '@playwright/test';
+import { mkdir } from 'node:fs/promises';
+import { join } from 'node:path';
 import { BULLETIN_ENTREES, PREVIEW_URL } from './bulletin-ref.mjs';
+
+/** Dossier des captures (les runs n'écrivent plus à la racine de l'app — revue
+ * qualité 02/11). Chemin relatif résolu depuis CWD = racine de l'app. */
+export const ARTIFACTS = 'tests/artifacts';
+
+/** Écrire la capture dans tests/artifacts/ et le signaler dans la console.
+ * mkdir au vol : le dossier est gitignoré, donc absent sur un clone propre. */
+export async function capture(page, nom) {
+  await mkdir(ARTIFACTS, { recursive: true });
+  await page.screenshot({ path: join(ARTIFACTS, nom), fullPage: true });
+  console.log(`screenshot: ${ARTIFACTS}/${nom} OK`);
+}
 
 /** Ouvre le calculateur à une taille donnée, retourne { browser, page }. */
 export async function ouvrirCalculateur(width = 1280, height = 800) {

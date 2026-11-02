@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { GROUPE_LABELS, assiettes, calcMensuel, impotTranche, lignesPaie } from '../src/calcul';
-import { IR_ANNUEL, IR_MENSUEL } from '../src/baremes';
+import { IR_MENSUEL, getBareme } from '../src/baremes';
 
 describe('assiettes — règle d exclusion unique (C3)', () => {
   it('panier/transport exclus de la base, inclus dans les gains', () => {
@@ -100,6 +100,8 @@ describe('Cas de référence — règles LF 2026', () => {
 });
 
 describe('impotTranche — lookup + formule (C4)', () => {
+  const IR_ANNUEL = getBareme(2026).irAnnuel; // le registre fait foi (alias supprimé)
+
   it('tranche à 0 % → brut nul, sans branche appelante', () => {
     expect(impotTranche(0, IR_MENSUEL)).toMatchObject({ brut: 0, index: 0 });
     expect(impotTranche(3333.33, IR_MENSUEL)).toMatchObject({ brut: 0, index: 0 });

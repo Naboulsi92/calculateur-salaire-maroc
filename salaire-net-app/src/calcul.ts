@@ -87,7 +87,6 @@ export interface Resultat {
     | 'primeAnc',
     number
   >;
-  irAnnuelControle: number;
   anciennete: Anciennete;
   avertissements: Avertissement[];
 }
@@ -235,9 +234,8 @@ export function calcMensuel(inp: Inputs): Resultat {
   // Net = total des gains − cotisations − IR (les exonérées sont versées).
   const net = pos2(totalGains - cnss - amo - cimr - irNet);
 
-  // Contrôle annuel IR (barème annuel sur SNI annualisé)
-  const sniAn = round2(sni * 12);
-  const { brut: irAnnuelControle } = impotTranche(sniAn, bareme.irAnnuel);
+  // (revue qualité 02/11) le « contrôle annuel IR » (barème annuel sur SNI
+  // annualisé) est supprimé : jamais lu par l'UI ni les tests — dette payée.
 
   const annual = {
     primeAnc: pos2(primeAnc * 12),
@@ -248,7 +246,7 @@ export function calcMensuel(inp: Inputs): Resultat {
     cnss: pos2(cnss * 12),
     amo: pos2(amo * 12),
     cimr: pos2(cimr * 12),
-    sni: sniAn,
+    sni: round2(sni * 12),
     irBrut: pos2(irBrut * 12),
     irNet: pos2(irNet * 12),
     net: pos2(net * 12),
@@ -286,7 +284,6 @@ export function calcMensuel(inp: Inputs): Resultat {
     annee: bareme.annee,
     statut: bareme.statut,
     annual,
-    irAnnuelControle,
     anciennete,
     avertissements,
   };
@@ -330,35 +327,20 @@ export interface EntreesLignes {
 /** Montants de retenue : signe négatif, avec normalisation du -0. */
 const retenue = (n: number): number => (n === 0 ? 0 : -n);
 
-export function lignesPaie(r: Resultat, e: EntreesLignes): LignePaie[] {
-  // FP affiché POSITIF + « (déduction fiscale) » (décision T3, aligné sur le
-  // comparateur) : abaisse l'IR, n'est pas prélevé du net — note explicative
-  // sous la table (index.html). Ordre 02/11 : les 3 retenues prélevées du net
-  // d'abord, puis le calcul de l'IR (FP → SNI → IR) — chaque bloc annoncé par
-  // un sous-entête de groupe.
-  return [
-    { id: 'brut-majore', label: 'Brut majoré (base + ancienneté)', mensuel: r.brutMajore, annuel: r.annual.brutMajore },
-    { id: 'prime-anc', label: 'Prime ancienneté', mensuel: r.primeAnc, annuel: r.annual.primeAnc },
-    { id: 'sbi', label: 'SBI = brut majoré (base imposable)', mensuel: r.sbi, annuel: r.annual.sbi, accent: true },
-    { id: 'total-gains', label: 'Total gains (SBI + panier + transport)', mensuel: r.totalGains, annuel: r.annual.totalGains },
-    { id: 'cnss', label: `CNSS (plaf. ${court(CNSS.plafond)})`, tauxPct: CNSS.taux * 100, mensuel: retenue(r.cnss), annuel: retenue(r.annual.cnss), groupe: 'retenues' },
-    { id: 'amo', label: 'AMO', tauxPct: e.amoOui ? AMO.taux * 100 : undefined, mensuel: retenue(r.amo), annuel: retenue(r.annual.amo) },
-    { id: 'cimr', label: 'CIMR', tauxPct: e.tauxCimr, mensuel: retenue(r.cimr), annuel: retenue(r.annual.cimr) },
-    { id: 'fp', label: 'Frais professionnels (déduction fiscale)', tauxPct: r.tauxFP * 100, mensuel: r.fp, annuel: r.annual.fp, groupe: 'ir' },
-    { id: 'sni', label: 'SNI (assiette IR)', mensuel: r.sni, annuel: r.annual.sni, accent: true },
-    { id: 'ir-brut', label: 'IR brut', tauxPct: r.tauxIR * 100, mensuel: retenue(r.irBrut), annuel: retenue(r.annual.irBrut) },
-    { id: 'famille', label: `Déduction famille (${e.nbCharges} pers.)`, mensuel: r.familleDed, annuel: null },
-    { id: 'ir-net', label: 'IR net', mensuel: retenue(r.irNet), annuel: retenue(r.annual.irNet), accent: true },
-    { id: 'net', label: 'Net à payer', mensuel: r.net, annuel: r.annual.net, accent: true },
-  ];
-}
-
 // ---------------------------------------------------------------------------
 // I2 — modèle de lignes du bulletin COMPARÉ (2 millésimes + écart). Même
 // principe que lignesPaie (C1) : le savoir de présentation vit ici, la page
 // ne fait que rendre. FP affiché POSITIF (déduction fiscale qui abaisse l'IR,
 // pas une retenue — décision T3) ; l'écart n'est coloré que sur IR brut /
 // IR net / Net (colore) — FP/SNI restent neutres.
+//
+// Table unifiée (revue qualité 02/11) : LIGNES_BULLETIN est l'UNE des deux
+// tables (bulletin simple ET comparé) — ids, ordre, libellés, groupes, lignes
+// accentuées et non-annualisables ont une source unique ; la divergence
+// comparative (colore, labelTaux, ligne « net-annuel », signe retenu/négatif)
+// reste déclarée par ligne. file() signe à la place de retenue() quand
+// negate=true (idem dans les deux projections : les montants comparés de
+// CNSS/AMO/CIMR/IR sont eux aussi négatifs).
 // ---------------------------------------------------------------------------
 
 export interface LigneComparateur {
@@ -388,6 +370,95 @@ export interface LigneComparateur {
   groupe?: Groupe;
 }
 
+/** Clés de Resultat["annual"] (dérivée du Record de l'interface). */
+type AnnualKey = keyof Resultat['annual'];
+
+interface DefLigne {
+  id: string;
+  label: string;
+  /** true = prélevée du net : affichée en négatif (les deux tableaux). */
+  negate?: boolean;
+  accent?: boolean;
+  groupe?: Groupe;
+  /** false = non annualisable (déduction famille). */
+  annualisable?: boolean;
+  /** true colore l'écart dans le comparateur (IR/Net uniquement, T3). */
+  colore?: boolean;
+  /** mensuel = r.fp, mensuel comparé = a.fp → b.fp… */
+  file: (r: Resultat) => number;
+  /** annuel = r.annual.fp ; requis sauf si annualisable: false. */
+  fileKey?: AnnualKey;
+}
+
+/** Source unique des 13 lignes communes (ordre d'affichage inclus). */
+const LIGNES_BULLETIN: readonly DefLigne[] = [
+  { id: 'brut-majore', label: 'Brut majoré (base + ancienneté)', fileKey: 'brutMajore', file: (r) => r.brutMajore },
+  { id: 'prime-anc', label: 'Prime ancienneté', fileKey: 'primeAnc', file: (r) => r.primeAnc },
+  { id: 'sbi', label: 'SBI = brut majoré (base imposable)', accent: true, fileKey: 'sbi', file: (r) => r.sbi },
+  { id: 'total-gains', label: 'Total gains (SBI + panier + transport)', fileKey: 'totalGains', file: (r) => r.totalGains },
+  { id: 'cnss', label: `CNSS (plaf. ${court(CNSS.plafond)})`, negate: true, groupe: 'retenues', fileKey: 'cnss', file: (r) => r.cnss },
+  { id: 'amo', label: 'AMO', negate: true, fileKey: 'amo', file: (r) => r.amo },
+  { id: 'cimr', label: 'CIMR', negate: true, fileKey: 'cimr', file: (r) => r.cimr },
+  { id: 'fp', label: 'Frais professionnels (déduction fiscale)', groupe: 'ir', fileKey: 'fp', file: (r) => r.fp },
+  { id: 'sni', label: 'SNI (assiette IR)', accent: true, fileKey: 'sni', file: (r) => r.sni },
+  { id: 'ir-brut', label: 'IR brut', negate: true, colore: true, fileKey: 'irBrut', file: (r) => r.irBrut },
+  { id: 'famille', label: 'Déduction famille', annualisable: false, file: (r) => r.familleDed },
+  { id: 'ir-net', label: 'IR net', negate: true, accent: true, colore: true, fileKey: 'irNet', file: (r) => r.irNet },
+  { id: 'net', label: 'Net à payer', accent: true, colore: true, fileKey: 'net', file: (r) => r.net },
+];
+
+/** Taux nominal (points) de la ligne, ou undefined = pas de taux affiché.
+ * `comparateur` : CIMR 0 % = non-adhérent → aucun taux (convention d'affichage
+ * propre à la page comparée, verrouillée par test). Le bulletin simple, lui,
+ * affiche le taux choisi y compris 0. */
+const tauxLigne = (
+  id: string,
+  r: Resultat,
+  e: EntreesLignes,
+  comparateur = false,
+): number | undefined => {
+  switch (id) {
+    case 'cnss': return CNSS.taux * 100;
+    case 'amo': return e.amoOui ? AMO.taux * 100 : undefined;
+    case 'cimr': return comparateur && e.tauxCimr === 0 ? undefined : e.tauxCimr;
+    case 'fp': return r.tauxFP * 100;
+    case 'ir-brut': return r.tauxIR * 100;
+    default: return undefined;
+  }
+};
+
+/** Suffixe ' · 25 %' ou ' · 25 % → 45 %' (millésime changeant), undefined = aucun. */
+const suffixeTaux = (ta: number | undefined, tb: number | undefined): string | undefined => {
+  if (ta === undefined && tb === undefined) return undefined;
+  return ta === tb ? ` · ${court(ta!)} %` : ` · ${court(ta!)} % → ${court(tb!)} %`;
+};
+
+export function lignesPaie(r: Resultat, e: EntreesLignes): LignePaie[] {
+  // FP affiché POSITIF + « (déduction fiscale) » (décision T3, aligné sur le
+  // comparateur) : abaisse l'IR, n'est pas prélevé du net — note explicative
+  // sous la table (index.html). Ordre 02/11 : les 3 retenues prélevées du net
+  // d'abord, puis le calcul de l'IR (FP → SNI → IR) — chaque bloc annoncé par
+  // un sous-entête de groupe.
+  return LIGNES_BULLETIN.map((d) => {
+    const label = d.id === 'famille' ? `${d.label} (${e.nbCharges} pers.)` : d.label;
+    const annuel =
+      d.annualisable === false
+        ? null
+        : d.negate
+          ? retenue(r.annual[d.fileKey!])
+          : r.annual[d.fileKey!];
+    return {
+      id: d.id,
+      label,
+      tauxPct: tauxLigne(d.id, r, e),
+      mensuel: d.negate ? retenue(d.file(r)) : d.file(r),
+      annuel,
+      accent: d.accent,
+      groupe: d.groupe,
+    };
+  });
+}
+
 /** Écart + % relatif (signe = signe de l'écart, base = |a|). */
 const ecartDe = (x: number, y: number): { ecart: number; pct: number | null } => {
   const d = round2(y - x);
@@ -395,28 +466,38 @@ const ecartDe = (x: number, y: number): { ecart: number; pct: number | null } =>
 };
 
 export function lignesComparateur(a: Resultat, b: Resultat, e: EntreesLignes): LigneComparateur[] {
-  const suffixe = (ta: number | undefined, tb: number | undefined): string | undefined => {
-    if (ta === undefined && tb === undefined) return undefined;
-    return ta === tb ? ` · ${court(ta!)} %` : ` · ${court(ta!)} % → ${court(tb!)} %`;
-  };
-  const lignes = [
-    { id: 'brut-majore', label: 'Brut majoré (base + ancienneté)', a: a.brutMajore, b: b.brutMajore, annuelA: a.annual.brutMajore, annuelB: b.annual.brutMajore, colore: false },
-    { id: 'prime-anc', label: 'Prime ancienneté', a: a.primeAnc, b: b.primeAnc, annuelA: a.annual.primeAnc, annuelB: b.annual.primeAnc, colore: false },
-    { id: 'sbi', label: 'SBI = brut majoré (base imposable)', a: a.sbi, b: b.sbi, annuelA: a.annual.sbi, annuelB: b.annual.sbi, colore: false, accent: true },
-    { id: 'total-gains', label: 'Total gains (SBI + panier + transport)', a: a.totalGains, b: b.totalGains, annuelA: a.annual.totalGains, annuelB: b.annual.totalGains, colore: false },
-    { id: 'cnss', label: `CNSS (plaf. ${court(CNSS.plafond)})`, labelTaux: ` · ${court(CNSS.taux * 100)} %`, a: retenue(a.cnss), b: retenue(b.cnss), annuelA: retenue(a.annual.cnss), annuelB: retenue(b.annual.cnss), colore: false, groupe: 'retenues' as const },
-    { id: 'amo', label: 'AMO', labelTaux: e.amoOui ? ` · ${court(AMO.taux * 100)} %` : undefined, a: retenue(a.amo), b: retenue(b.amo), annuelA: retenue(a.annual.amo), annuelB: retenue(b.annual.amo), colore: false },
-    { id: 'cimr', label: 'CIMR', labelTaux: e.tauxCimr > 0 ? ` · ${court(e.tauxCimr)} %` : undefined, a: retenue(a.cimr), b: retenue(b.cimr), annuelA: retenue(a.annual.cimr), annuelB: retenue(b.annual.cimr), colore: false },
-    { id: 'fp', label: 'Frais professionnels (déduction fiscale)', labelTaux: suffixe(a.tauxFP * 100, b.tauxFP * 100), a: a.fp, b: b.fp, annuelA: a.annual.fp, annuelB: b.annual.fp, colore: false, groupe: 'ir' as const },
-    { id: 'sni', label: 'SNI (assiette IR)', a: a.sni, b: b.sni, annuelA: a.annual.sni, annuelB: b.annual.sni, colore: false, accent: true },
-    { id: 'ir-brut', label: 'IR brut', labelTaux: suffixe(a.tauxIR * 100, b.tauxIR * 100), a: retenue(a.irBrut), b: retenue(b.irBrut), annuelA: retenue(a.annual.irBrut), annuelB: retenue(b.annual.irBrut), colore: true },
-    { id: 'famille', label: `Déduction famille (${e.nbCharges} pers.)`, a: a.familleDed, b: b.familleDed, annuelA: null, annuelB: null, colore: false },
-    { id: 'ir-net', label: 'IR net', a: retenue(a.irNet), b: retenue(b.irNet), annuelA: retenue(a.annual.irNet), annuelB: retenue(b.annual.irNet), colore: true, accent: true },
-    { id: 'net', label: 'Net à payer', a: a.net, b: b.net, annuelA: a.annual.net, annuelB: b.annual.net, colore: true, accent: true },
-    // Demande 02/11 : version annuelle du net dans le tableau — a/b y sont des
-    // MONTANTS ANNUELS (× 12) ; ecartDe rend le même % que la ligne mensuelle.
-    { id: 'net-annuel', label: 'Net à payer annuel (× 12)', a: a.annual.net, b: b.annual.net, annuelA: null, annuelB: null, colore: true, accent: true },
-  ];
+  const lignes: Array<Omit<LigneComparateur, 'ecart' | 'ecartPct' | 'ecartAnnuel' | 'ecartAnnuelPct'>> =
+    LIGNES_BULLETIN.map((d) => {
+      const label = d.id === 'famille' ? `${d.label} (${e.nbCharges} pers.)` : d.label;
+      const va = d.negate ? retenue(d.file(a)) : d.file(a);
+      const vb = d.negate ? retenue(d.file(b)) : d.file(b);
+      const annuelA = d.annualisable === false ? null : d.negate ? retenue(a.annual[d.fileKey!]) : a.annual[d.fileKey!];
+      const annuelB = d.annualisable === false ? null : d.negate ? retenue(b.annual[d.fileKey!]) : b.annual[d.fileKey!];
+      return {
+        id: d.id,
+        label,
+        labelTaux: suffixeTaux(tauxLigne(d.id, a, e, true), tauxLigne(d.id, b, e, true)),
+        a: va,
+        b: vb,
+        annuelA,
+        annuelB,
+        colore: d.colore === true,
+        accent: d.accent,
+        groupe: d.groupe,
+      };
+    });
+  // Demande 02/11 : version annuelle du net dans le tableau — a/b y sont des
+  // MONTANTS ANNUELS (× 12) ; ecartDe rend le même % que la ligne mensuelle.
+  lignes.push({
+    id: 'net-annuel',
+    label: 'Net à payer annuel (× 12)',
+    a: a.annual.net,
+    b: b.annual.net,
+    annuelA: null,
+    annuelB: null,
+    colore: true,
+    accent: true,
+  });
   return lignes.map((l) => {
     const m = ecartDe(l.a, l.b);
     const ann =

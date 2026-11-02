@@ -90,11 +90,12 @@ export function lireInputs(f: ChampsFormulaire): Inputs {
   };
 }
 
-/** Câblage des listeners (input + change + radios AMO). */
+/** Câblage des listeners (revue qualité : « input » suffit — « change » en
+ * double sur select/date déclenchait deux recalculs par interaction ; les
+ * radios AMO, eux, n'émettent que « change » — listeners séparés). */
 export function cableFormulaire(f: ChampsFormulaire, recalc: () => void): void {
   for (const el of [f.brut, f.embauche, f.panier, f.transport, f.cimr, f.charges]) {
     el.addEventListener('input', recalc);
-    el.addEventListener('change', recalc);
   }
   document.querySelectorAll('input[name="amo"]').forEach((el) => {
     el.addEventListener('change', recalc);

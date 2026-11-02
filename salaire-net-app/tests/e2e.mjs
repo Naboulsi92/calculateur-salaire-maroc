@@ -1,5 +1,5 @@
 // D1 : scénario e2e fin — même couverture via le harnais partagé.
-import { lireLigne, ouvrirCalculateur, remplirBulletin } from './helpers.mjs';
+import { capture, lireLigne, ouvrirCalculateur, remplirBulletin } from './helpers.mjs';
 import { BULLETIN_ATTENDUS } from './bulletin-ref.mjs';
 
 const { browser, page } = await ouvrirCalculateur();
@@ -42,8 +42,7 @@ if (!cimrMensuel.replace(/\s/g, '').includes(attendu)) {
 await page.selectOption('#cimr', '6');
 await page.selectOption('#charges', '2');
 await page.waitForTimeout(300);
-await page.screenshot({ path: 'e2e.png', fullPage: true });
-console.log('screenshot: e2e.png OK');
+await capture(page, 'e2e.png');
 
 await browser.close();
 console.log('E2E OK');

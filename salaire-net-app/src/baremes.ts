@@ -192,32 +192,16 @@ export function findTrancheFP(sbiAnnuel: number, tranches: TrancheFP[]): Tranche
 }
 
 // ---------------------------------------------------------------------------
-// D11 — alias de compatibilité : zéro rupture pour calcul.ts / main.ts / tests.
-// IR : année courante du registre. FP : forme héritée 2026, gelée (la seule
-// année qui a ce régime 35 %/25 %) — le registre fait désormais foi.
+// D11 (revue qualité 02/11) — l'alias FP « compatibilité » est supprimé : le
+// registre BAREMES + fraisPro() font seuls foi (le moteur ne l'utilisait plus,
+// seul un test le maintenait en vie — dette payée). IR_MENSUEL reste vivant :
+// main.ts affiche le nombre de tranches du millésime courant.
 // ---------------------------------------------------------------------------
 
 /** Année par défaut du moteur = dernière 'en-vigueur' (D10). */
 export const ANNEE_COURANTE: number = derniereAnneeEnVigueur();
 
 export const IR_MENSUEL: TrancheIR[] = BAREMES[ANNEE_COURANTE]!.irMensuel;
-export const IR_ANNUEL: TrancheIR[] = BAREMES[ANNEE_COURANTE]!.irAnnuel;
-
-const FP_2026 = BAREMES[2026]!.fp;
-const FP26_T0 = FP_2026[0]!;
-const FP26_T1 = FP_2026[1]!;
-export const FP = {
-  // 2026 tranche 0 : le seuil existe toujours (78 000) ; typé nullable car les
-  // tranches 2027+ n'en ont plus (seuilAnnuel: null).
-  seuilAnnuel: FP26_T0.seuilAnnuel!,
-  seuilMensuel: FP26_T0.seuilAnnuel! / 12, // 6 500 (dérivé, règle ÷12 uniforme)
-  tauxBas: FP26_T0.taux,
-  plafBasMensuel: FP26_T0.plafondAnnuel / 12, // 2 500
-  plafBasAnnuel: FP26_T0.plafondAnnuel, // 30 000
-  tauxHaut: FP26_T1.taux,
-  plafHautMensuel: FP26_T1.plafondAnnuel / 12, // 2 916.666...
-  plafHautAnnuel: FP26_T1.plafondAnnuel, // 35 000
-};
 
 export const CNSS = { taux: 0.0448, plafond: 6000 } as const;
 export const AMO = { taux: 0.0226 } as const;
@@ -240,7 +224,6 @@ export const FAMILLE = {
 } as const;
 
 export const SMIG_MENSUEL = 3422.72;
-export const SMIG_HORAIRE = 17.92;
 export const SMIG_ANNEE = 2026;
 
 /** Millésimes d'affichage (LF vs barème IR : indépendants dans la réalité). */

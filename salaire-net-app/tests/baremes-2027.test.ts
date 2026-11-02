@@ -4,7 +4,7 @@
 // Politique (D16) : exact au centime sur NOS sorties moteur recomputées
 // indépendamment ; vecteurs externes (presse/simulateurs) avec tolérance ±3 MAD.
 // 2028–2030 : déductions DÉRIVÉES (bornes + taux confirmés) — à re-vérifier au
-// vote / publication BO (jalons T7, D18). D11 : alias de compatibilité figés.
+// vote / publication BO (jalons T7, D18).
 import { describe, expect, it } from 'vitest';
 import { calcMensuel, fraisPro, impotTranche, round2 } from '../src/calcul';
 import { profil } from './profil';
@@ -13,8 +13,6 @@ import {
   ANNEE_BAREME_IR,
   ANNEE_COURANTE,
   BAREMES,
-  FP,
-  IR_ANNUEL,
   IR_MENSUEL,
   derniereAnneeEnVigueur,
   getBareme,
@@ -44,17 +42,9 @@ describe('Registre multi-années (D8–D11)', () => {
     expect(() => getBareme(2032)).toThrow();
   });
 
-  it('alias D11 : IR pointe vers 2026, FP hérité 2026 inchangé', () => {
+  it('alias IR_MENSUEL : pointe vers le millésime en vigueur (2026)', () => {
+    // L'alias FP « hérité » (D11) est supprimé — dette payée, voir baremes.ts.
     expect(IR_MENSUEL).toBe(BAREMES[2026]!.irMensuel);
-    expect(IR_ANNUEL).toBe(BAREMES[2026]!.irAnnuel);
-    expect(FP.seuilAnnuel).toBe(78000);
-    expect(FP.seuilMensuel).toBe(6500);
-    expect(FP.tauxBas).toBe(0.35);
-    expect(FP.plafBasMensuel).toBe(2500);
-    expect(FP.plafBasAnnuel).toBe(30000);
-    expect(FP.tauxHaut).toBe(0.25);
-    expect(FP.plafHautMensuel).toBe(35000 / 12);
-    expect(FP.plafHautAnnuel).toBe(35000);
   });
 });
 

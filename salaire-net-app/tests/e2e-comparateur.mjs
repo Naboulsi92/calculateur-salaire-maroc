@@ -3,6 +3,7 @@
 // (harnais Playwright sur le serveur de preview :4173).
 import { chromium } from '@playwright/test';
 import { PREVIEW_URL } from './bulletin-ref.mjs';
+import { capture } from './helpers.mjs';
 
 const URL_COMPARATEUR = new URL('salaire-net-2027', PREVIEW_URL).href;
 const attendre = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -115,8 +116,7 @@ console.log('brut 8 000 OK');
 // 9) Capture + retour aux valeurs de référence
 await page.fill('#brut', '10000');
 await attendre(200);
-await page.screenshot({ path: 'e2e-comparateur.png', fullPage: true });
-console.log('screenshot: e2e-comparateur.png OK');
+await capture(page, 'e2e-comparateur.png');
 
 // 10) Maillage home ↔ comparateur : bandeau visible + footer, clic → page dédiée
 await page.goto(PREVIEW_URL, { waitUntil: 'domcontentloaded' });
@@ -162,8 +162,7 @@ const scrollable = await p320.evaluate(() => {
 console.log('table-scroll 320px:', JSON.stringify(scrollable));
 if (!scrollable.canScroll) throw new Error('.table-scroll ne défile pas à 320px');
 if (!scrollable.tabbable) throw new Error('.table-scroll non atteignable au clavier');
-await p320.screenshot({ path: 'e2e-comparateur-mobile.png', fullPage: true });
-console.log('screenshot: e2e-comparateur-mobile.png OK');
+await capture(p320, 'e2e-comparateur-mobile.png');
 await p320.close();
 
 await browser.close();
