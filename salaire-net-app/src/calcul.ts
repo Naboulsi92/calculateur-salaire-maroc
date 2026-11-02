@@ -298,6 +298,15 @@ export function calcMensuel(inp: Inputs): Resultat {
 // l'interface — main.ts ne fait que rendre (adapter), les tests assertent ici.
 // ---------------------------------------------------------------------------
 
+/** Groupe de presentation : sous-entete emis avant la ligne marquee. */
+export type Groupe = 'retenues' | 'ir';
+
+/** Libelles des sous-entetes de groupes (rendu main.ts + comparateur.ts). */
+export const GROUPE_LABELS: Record<Groupe, string> = {
+  retenues: 'Retenues salariales (prélevées du net)',
+  ir: "Calcul de l'IR (base imposable)",
+};
+
 export interface LignePaie {
   id: string;
   label: string;
@@ -308,6 +317,8 @@ export interface LignePaie {
   annuel: number | null;
   /** Ligne mise en évidence. */
   accent?: boolean;
+  /** Sous-entête de groupe émis avant cette ligne (C1 : savoir ici, rendu là). */
+  groupe?: Groupe;
 }
 
 export interface EntreesLignes {
@@ -322,16 +333,18 @@ const retenue = (n: number): number => (n === 0 ? 0 : -n);
 export function lignesPaie(r: Resultat, e: EntreesLignes): LignePaie[] {
   // FP affiché POSITIF + « (déduction fiscale) » (décision T3, aligné sur le
   // comparateur) : abaisse l'IR, n'est pas prélevé du net — note explicative
-  // sous la table (index.html).
+  // sous la table (index.html). Ordre 02/11 : les 3 retenues prélevées du net
+  // d'abord, puis le calcul de l'IR (FP → SNI → IR) — chaque bloc annoncé par
+  // un sous-entête de groupe.
   return [
     { id: 'brut-majore', label: 'Brut majoré (base + ancienneté)', mensuel: r.brutMajore, annuel: r.annual.brutMajore },
     { id: 'prime-anc', label: 'Prime ancienneté', mensuel: r.primeAnc, annuel: r.annual.primeAnc },
     { id: 'sbi', label: 'SBI = brut majoré (base imposable)', mensuel: r.sbi, annuel: r.annual.sbi, accent: true },
     { id: 'total-gains', label: 'Total gains (SBI + panier + transport)', mensuel: r.totalGains, annuel: r.annual.totalGains },
-    { id: 'fp', label: 'Frais professionnels (déduction fiscale)', tauxPct: r.tauxFP * 100, mensuel: r.fp, annuel: r.annual.fp },
-    { id: 'cnss', label: `CNSS (plaf. ${court(CNSS.plafond)})`, tauxPct: CNSS.taux * 100, mensuel: retenue(r.cnss), annuel: retenue(r.annual.cnss) },
+    { id: 'cnss', label: `CNSS (plaf. ${court(CNSS.plafond)})`, tauxPct: CNSS.taux * 100, mensuel: retenue(r.cnss), annuel: retenue(r.annual.cnss), groupe: 'retenues' },
     { id: 'amo', label: 'AMO', tauxPct: e.amoOui ? AMO.taux * 100 : undefined, mensuel: retenue(r.amo), annuel: retenue(r.annual.amo) },
     { id: 'cimr', label: 'CIMR', tauxPct: e.tauxCimr, mensuel: retenue(r.cimr), annuel: retenue(r.annual.cimr) },
+    { id: 'fp', label: 'Frais professionnels (déduction fiscale)', tauxPct: r.tauxFP * 100, mensuel: r.fp, annuel: r.annual.fp, groupe: 'ir' },
     { id: 'sni', label: 'SNI (assiette IR)', mensuel: r.sni, annuel: r.annual.sni, accent: true },
     { id: 'ir-brut', label: 'IR brut', tauxPct: r.tauxIR * 100, mensuel: retenue(r.irBrut), annuel: retenue(r.annual.irBrut) },
     { id: 'famille', label: `Déduction famille (${e.nbCharges} pers.)`, mensuel: r.familleDed, annuel: null },
@@ -371,6 +384,8 @@ export interface LigneComparateur {
   colore: boolean;
   /** Ligne mise en évidence (sous-totaux, net). */
   accent?: boolean;
+  /** Sous-entête de groupe émis avant cette ligne (idem lignesPaie). */
+  groupe?: Groupe;
 }
 
 /** Écart + % relatif (signe = signe de l'écart, base = |a|). */
@@ -389,10 +404,10 @@ export function lignesComparateur(a: Resultat, b: Resultat, e: EntreesLignes): L
     { id: 'prime-anc', label: 'Prime ancienneté', a: a.primeAnc, b: b.primeAnc, annuelA: a.annual.primeAnc, annuelB: b.annual.primeAnc, colore: false },
     { id: 'sbi', label: 'SBI = brut majoré (base imposable)', a: a.sbi, b: b.sbi, annuelA: a.annual.sbi, annuelB: b.annual.sbi, colore: false, accent: true },
     { id: 'total-gains', label: 'Total gains (SBI + panier + transport)', a: a.totalGains, b: b.totalGains, annuelA: a.annual.totalGains, annuelB: b.annual.totalGains, colore: false },
-    { id: 'fp', label: 'Frais professionnels (déduction fiscale)', labelTaux: suffixe(a.tauxFP * 100, b.tauxFP * 100), a: a.fp, b: b.fp, annuelA: a.annual.fp, annuelB: b.annual.fp, colore: false },
-    { id: 'cnss', label: `CNSS (plaf. ${court(CNSS.plafond)})`, labelTaux: ` · ${court(CNSS.taux * 100)} %`, a: retenue(a.cnss), b: retenue(b.cnss), annuelA: retenue(a.annual.cnss), annuelB: retenue(b.annual.cnss), colore: false },
+    { id: 'cnss', label: `CNSS (plaf. ${court(CNSS.plafond)})`, labelTaux: ` · ${court(CNSS.taux * 100)} %`, a: retenue(a.cnss), b: retenue(b.cnss), annuelA: retenue(a.annual.cnss), annuelB: retenue(b.annual.cnss), colore: false, groupe: 'retenues' as const },
     { id: 'amo', label: 'AMO', labelTaux: e.amoOui ? ` · ${court(AMO.taux * 100)} %` : undefined, a: retenue(a.amo), b: retenue(b.amo), annuelA: retenue(a.annual.amo), annuelB: retenue(b.annual.amo), colore: false },
     { id: 'cimr', label: 'CIMR', labelTaux: e.tauxCimr > 0 ? ` · ${court(e.tauxCimr)} %` : undefined, a: retenue(a.cimr), b: retenue(b.cimr), annuelA: retenue(a.annual.cimr), annuelB: retenue(b.annual.cimr), colore: false },
+    { id: 'fp', label: 'Frais professionnels (déduction fiscale)', labelTaux: suffixe(a.tauxFP * 100, b.tauxFP * 100), a: a.fp, b: b.fp, annuelA: a.annual.fp, annuelB: b.annual.fp, colore: false, groupe: 'ir' as const },
     { id: 'sni', label: 'SNI (assiette IR)', a: a.sni, b: b.sni, annuelA: a.annual.sni, annuelB: b.annual.sni, colore: false, accent: true },
     { id: 'ir-brut', label: 'IR brut', labelTaux: suffixe(a.tauxIR * 100, b.tauxIR * 100), a: retenue(a.irBrut), b: retenue(b.irBrut), annuelA: retenue(a.annual.irBrut), annuelB: retenue(b.annual.irBrut), colore: true },
     { id: 'famille', label: `Déduction famille (${e.nbCharges} pers.)`, a: a.familleDed, b: b.familleDed, annuelA: null, annuelB: null, colore: false },

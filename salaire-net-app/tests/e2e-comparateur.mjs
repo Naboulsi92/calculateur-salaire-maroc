@@ -51,11 +51,22 @@ if (!badges.includes('FPplafonné2027')) throw new Error('Badge FP plafonné 202
 console.log('badges OK');
 
 // 6) Lignes du bulletin comparé : FP positif 2 500,00 → 2 916,67 ; net +442,71
-// Colonnes : Ligne · 2026 · 2027 · Écart MAD · Écart % (demande 02/11)
+// Colonnes : Ligne · 2026 · 2027 · Écart MAD · Écart % (demande 02/11).
+// Sous-entêtes de groupes (1 td, colspan 5) exclus des lignes de données.
 const rows = await page.$$eval('#lignes tr', (trs) =>
-  trs.map((tr) => [...tr.children].map((td) => td.textContent.trim())),
+  trs
+    .filter((tr) => tr.children.length === 5)
+    .map((tr) => [...tr.children].map((td) => td.textContent.trim())),
 );
 if (rows.length !== 14) throw new Error(`14 lignes attendues, obtenu: ${rows.length}`);
+// Sous-entêtes de groupes (fix ② 02/11) : retenues puis calcul IR.
+const groupes = await page.$$eval('#lignes tr.groupe td', (tds) =>
+  tds.map((td) => td.textContent.trim()),
+);
+if (groupes.length !== 2) throw new Error(`2 sous-entêtes attendus, obtenu: ${groupes.length}`);
+if (!/^Retenues salariales/i.test(groupes[0])) throw new Error(`Groupe 1 inattendu: ${groupes[0]}`);
+if (!/Calcul de l.IR/.test(groupes[1])) throw new Error(`Groupe 2 inattendu: ${groupes[1]}`);
+console.log('groupes OK');
 const fp = rows.find((r) => r[0].startsWith('Frais professionnels'));
 if (norm(fp[1]) !== '2500,00' || norm(fp[2]) !== '2916,67') {
   throw new Error(`FP attendu 2 500,00 → 2 916,67, obtenu: ${fp[1]} / ${fp[2]}`);

@@ -14,19 +14,29 @@ export const ANNEE_CIBLE = 2027;
 /** Dernière mise à jour éditoriale (lastmod sitemap + dateModified JSON-LD). */
 export const DATE_MAJ = '2026-11-02';
 
-/** Questions visibles (.qa) ET graphe FAQPage : même source, pas de drift. */
+/** Questions visibles (.qa) ET graphe FAQPage : même source, pas de drift.
+ * Exemples chiffrés issus du moteur (profil par défaut 2026 : panier 500,
+ * transport 500, AMO oui, CIMR 0, 0 charge) — jamais de sommes « de tête ». */
 export const FAQ = [
   {
-    q: 'Comment calculer le salaire net au Maroc en 2026 ?',
-    a: 'Net = total des gains (brut + ancienneté + panier + transport) − CNSS − AMO − CIMR − IR. Saisissez votre brut mensuel dans le simulateur.',
+    q: 'Comment calculer son salaire net au Maroc en 2026 ?',
+    a: "Net = total des gains (salaire de base + prime d'ancienneté + panier + transport) − CNSS − AMO − CIMR − IR net. L'IR est assis sur le revenu net imposable (SNI) : salaire de base imposable moins les frais professionnels, puis abattements sociaux. Le simulateur déroule tout le calcul à l'écran, barèmes 2026 (LF 50-25).",
   },
   {
     q: 'Quels sont les taux CNSS et AMO en 2026 ?',
-    a: 'Part salariale : CNSS 4,48 % plafonnée à 6 000 MAD/mois, AMO 2,26 % sans plafond.',
+    a: "Part salariale : CNSS 4,48 % sur le salaire de base plafonné à 6 000 MAD/mois (soit 268,80 MAD au maximum) et AMO 2,26 % sans plafond. Un brut de 20 000 MAD paie donc exactement autant de CNSS qu'un brut de 6 000 MAD ; seule l'AMO continue de croître.",
   },
   {
     q: "Comment est calculé l'IR sur salaire au Maroc en 2026 ?",
-    a: "L'IR s'applique par 6 tranches (0 % à 37 %) sur le net imposable, après frais professionnels et déduction de 600 MAD par personne à charge (plafond 3 600 MAD).",
+    a: "On déduit d'abord les frais professionnels du salaire de base imposable : 35 % jusqu'à 78 000 MAD par an, 25 % au-delà, plafond global 35 000 MAD/an (2 916,67 MAD/mois). Le reste, moins les cotisations, forme le SNI, soumis à l'IR par 6 tranches de 0 % à 37 %, puis abattement de 600 MAD/an par personne à charge (plafond 3 600 MAD). Les frais professionnels ne sont pas prélevés du salaire : c'est une déduction fiscale qui baisse l'IR.",
+  },
+  {
+    q: 'Le panier et le transport sont-ils imposables ?',
+    a: "Non : ces indemnités versées en espèces sont exclues de toutes les bases (CNSS, AMO, CIMR, IR) tout en restant versées, donc elles s'ajoutent au net — celui-ci peut dépasser le brut. Exemple avec 6 000 MAD de brut, 500 MAD de panier et 500 MAD de transport : 6 579,37 MAD de net mensuel.",
+  },
+  {
+    q: 'Quel net mensuel pour quel brut en 2026 ?',
+    a: "Profil courant (panier 500 MAD + transport 500 MAD, AMO, sans CIMR ni personne à charge) : 6 000 MAD de brut → 6 579,37 MAD de net par mois (78 952,44 MAD/an) ; 10 000 de brut → 9 903,64 de net (118 843,68/an) ; 20 000 de brut → 16 508,39 de net (198 100,68/an). Au SMIG (3 422,72 MAD), le net ressort à 4 192,03 MAD.",
   },
 ];
 

@@ -51,11 +51,11 @@ describe('site — source unique SEO (D3)', () => {
     expect(DATE_MAJ).toMatch(/^\d{4}-\d{2}-\d{2}$/);
   });
 
-  it('FAQ : 3 questions-réponses non vides (body + JSON-LD)', () => {
-    expect(FAQ).toHaveLength(3);
+  it('FAQ : 5 questions-réponses substantielles (body + JSON-LD)', () => {
+    expect(FAQ).toHaveLength(5);
     for (const { q, a } of FAQ) {
       expect(q.length).toBeGreaterThan(10);
-      expect(a.length).toBeGreaterThan(20);
+      expect(a.length).toBeGreaterThan(80); // anti one-liner (polish UX ③ 02/11)
     }
   });
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { assiettes, calcMensuel, impotTranche, lignesPaie } from '../src/calcul';
+import { GROUPE_LABELS, assiettes, calcMensuel, impotTranche, lignesPaie } from '../src/calcul';
 import { IR_ANNUEL, IR_MENSUEL } from '../src/baremes';
 
 describe('assiettes — règle d exclusion unique (C3)', () => {
@@ -121,11 +121,20 @@ describe('lignesPaie — modèle de lignes (C1)', () => {
   const entrees = { tauxCimr: 6, amoOui: true, nbCharges: 2 };
   const lignes = lignesPaie(calcMensuel({ ...base, dateEmbauche: '' }), entrees);
 
-  it('13 lignes aux ids stables, dans l ordre', () => {
+  it('13 lignes aux ids stables, dans l ordre (retenues puis calcul IR)', () => {
     expect(lignes.map((l) => l.id)).toEqual([
-      'brut-majore', 'prime-anc', 'sbi', 'total-gains', 'fp', 'cnss', 'amo',
-      'cimr', 'sni', 'ir-brut', 'famille', 'ir-net', 'net',
+      'brut-majore', 'prime-anc', 'sbi', 'total-gains', 'cnss', 'amo',
+      'cimr', 'fp', 'sni', 'ir-brut', 'famille', 'ir-net', 'net',
     ]);
+  });
+
+  it('sous-entêtes de groupes : retenues sur cnss, IR sur fp', () => {
+    expect(lignes.filter((l) => l.groupe).map((l) => [l.id, l.groupe])).toEqual([
+      ['cnss', 'retenues'],
+      ['fp', 'ir'],
+    ]);
+    expect(GROUPE_LABELS.retenues).toContain('prélevées du net');
+    expect(GROUPE_LABELS.ir).toContain('IR');
   });
 
   it('taux nominaux et montants cohérents avec le résultat', () => {

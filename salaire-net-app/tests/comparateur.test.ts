@@ -11,10 +11,17 @@ const lignes = lignesComparateur(r26, r27, entreesLignes);
 const parId = Object.fromEntries(lignes.map((l) => [l.id, l]));
 
 describe('lignesComparateur — structure (C1/I2)', () => {
-  it('14 lignes : lignesPaie + ligne annuelle, dans l’ordre', () => {
+  it('14 lignes : lignesPaie + ligne annuelle, dans l’ordre (retenues puis calcul IR)', () => {
     expect(lignes.map((l) => l.id)).toEqual([
-      'brut-majore', 'prime-anc', 'sbi', 'total-gains', 'fp', 'cnss', 'amo',
-      'cimr', 'sni', 'ir-brut', 'famille', 'ir-net', 'net', 'net-annuel',
+      'brut-majore', 'prime-anc', 'sbi', 'total-gains', 'cnss', 'amo',
+      'cimr', 'fp', 'sni', 'ir-brut', 'famille', 'ir-net', 'net', 'net-annuel',
+    ]);
+  });
+
+  it('sous-entêtes de groupes aux mêmes lignes que lignesPaie', () => {
+    expect(lignes.filter((l) => l.groupe).map((l) => [l.id, l.groupe])).toEqual([
+      ['cnss', 'retenues'],
+      ['fp', 'ir'],
     ]);
   });
 

@@ -1,7 +1,7 @@
 // Page principale — adaptateur de rendu (aucune règle métier, C1).
 // Le formulaire (options, défauts, listeners) est partagé avec le comparateur
 // via src/formulaire.ts (revue code : anti-duplication).
-import { calcMensuel, lignesPaie } from './calcul';
+import { GROUPE_LABELS, calcMensuel, lignesPaie } from './calcul';
 import { texteAvertissement } from './avertissements';
 import { ANNEE_BAREME_IR, ANNEE_LF, IR_MENSUEL, SMIG_MENSUEL } from './baremes';
 import { mad, montant, pct } from './format';
@@ -50,6 +50,15 @@ function recalc(): void {
   const rows = lignesPaie(r, { tauxCimr: inp.tauxCimr, amoOui: inp.amoOui, nbCharges: inp.nbCharges });
   lignes.innerHTML = '';
   for (const ligne of rows) {
+    if (ligne.groupe) {
+      const trG = document.createElement('tr');
+      trG.className = 'groupe';
+      const tdG = document.createElement('td');
+      tdG.colSpan = 4;
+      tdG.textContent = GROUPE_LABELS[ligne.groupe];
+      trG.appendChild(tdG);
+      lignes.appendChild(trG);
+    }
     const tr = document.createElement('tr');
     if (ligne.accent) tr.className = 'strong';
     const tdL = document.createElement('td');

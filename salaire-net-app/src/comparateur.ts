@@ -3,7 +3,7 @@
 // côte à côte + écart (MAD, %, annuel — revue code/Spec §1). Moteur I1 :
 // calcMensuel(annee) appelé deux fois ; colonne de base = dernière année
 // 'en-vigueur' (D10), chips = millésimes suivants du registre (T3).
-import { calcMensuel, lignesComparateur, round2, type LigneComparateur } from './calcul';
+import { GROUPE_LABELS, calcMensuel, lignesComparateur, round2, type LigneComparateur } from './calcul';
 import {
   ANNEE_COURANTE,
   ANNEES_BAREMES,
@@ -156,6 +156,15 @@ function recalc(): void {
     amoOui: inp.amoOui,
     nbCharges: inp.nbCharges,
   })) {
+    if (ligne.groupe) {
+      const trG = document.createElement('tr');
+      trG.className = 'groupe';
+      const tdG = document.createElement('td');
+      tdG.colSpan = 5;
+      tdG.textContent = GROUPE_LABELS[ligne.groupe];
+      trG.appendChild(tdG);
+      lignesBody.appendChild(trG);
+    }
     const tr = document.createElement('tr');
     if (ligne.id === 'net' || ligne.id === 'net-annuel') tr.className = 'net-row';
     else if (ligne.accent) tr.className = 'strong';
