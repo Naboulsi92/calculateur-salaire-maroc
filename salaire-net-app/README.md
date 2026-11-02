@@ -12,7 +12,7 @@ golden tests (`tests/baremes-2027.test.ts`, `tests/calcul.test.ts`).
 - `/salaire-net-2027` — comparateur 2027+ vs 2026 (chips 2027–2031, badge
   « projet non voté » tant que le PLF n'est pas promulgué)
 
-Production : https://calculateur-salaire-maroc.naboulsi-riyad.workers.dev/
+Production : https://calculateur-salaire.ma/
 (déploiement auto Cloudflare **Workers Builds** à chaque push sur `master` :
 `npm run build` puis `npx wrangler deploy` — wrangler est **épinglé** en
 devDependency et la config de déploiement vit dans

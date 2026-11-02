@@ -22,8 +22,9 @@ logs/
 *.log
 npm-debug.log*
 
-# Source
+# Source & notes de travail locales
 docs/
+todo.md
 
 # OS & éditeurs
 Thumbs.db

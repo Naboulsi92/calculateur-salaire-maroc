@@ -3,8 +3,8 @@
 // FAQ, footer), public/robots.txt et public/sitemap.xml. Ne dupliquer aucune de
 // ces valeurs ailleurs : éditer ici, puis `npm run seo`.
 
-/** Domaine canonique (production Cloudflare Pages). */
-export const SITE_URL = 'https://calculateur-salaire-maroc.naboulsi-riyad.workers.dev';
+/** Domaine canonique (production Cloudflare Workers, custom domain). */
+export const SITE_URL = 'https://calculateur-salaire.ma';
 
 /** Millésime fiscal affiché et fraîcheur signalée aux moteurs. */
 export const ANNEE = 2026;
@@ -12,7 +12,7 @@ export const ANNEE = 2026;
 export const ANNEE_CIBLE = 2027;
 
 /** Dernière mise à jour éditoriale (lastmod sitemap + dateModified JSON-LD). */
-export const DATE_MAJ = '2026-10-27';
+export const DATE_MAJ = '2026-11-02';
 
 /** Questions visibles (.qa) ET graphe FAQPage : même source, pas de drift. */
 export const FAQ = [
