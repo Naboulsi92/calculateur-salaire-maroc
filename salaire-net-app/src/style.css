@@ -186,9 +186,13 @@
     .grid { grid-template-columns: 1fr; }
   }
   /* En-tête : sous le breakpoint du grid, le bloc droit repasse en ligne
-     sous le titre (mêmes conditions que le grid 1 colonne, layer base). */
+     sous le titre (mêmes conditions que le grid 1 colonne, layer base).
+     flex-basis:auto : en colonne, la base 340px de la colonne titre
+     (flex:1 1 340px) devenait sa HAUTEUR → ~170 px de vide sous le h1 sur
+     mobile (feedback utilisateur 02/11). */
   @media (max-width: 679.98px) {
     .masthead { flex-direction: column; align-items: start; }
+    .masthead > div:first-child { flex-basis: auto; }
     .masthead-droite { flex-direction: row; align-items: center; gap: 10px; flex-wrap: wrap; width: auto; }
     .seg-nav { width: auto; max-width: 100%; }
     .stamp { align-self: auto; }
