@@ -20,6 +20,18 @@
     --mono: 'IBM Plex Mono', ui-monospace, Consolas, monospace;
     --disp: 'Fraunces', Georgia, serif;
     --body: 'Inter', system-ui, sans-serif;
+    /* Largeur de chaque pill du sélecteur : identique partout (02/11).
+       Deux lignes (nom + millésime) : 130 px ≥ « Comparateur » et
+       « 2027–2031 » sur une seule ligne chacun. */
+    --pill-largeur: 130px;
+    /* Largeur du sélecteur : deux pills + gap + padding, calculée → jamais de
+       débordement hors de la pastille (02/11, le texte touchait le bord). */
+    --seg-largeur: calc(2 * var(--pill-largeur) + 10px);
+    /* Largeur de la colonne DROITE de l'en-tête = largeur du sélecteur :
+       les pills collent au bord droit (02/11, demande utilisateur) et le
+       tampon reste aligné à droite sous elles ; colonne identique home/compara-
+       teur → en-têtes homogènes. */
+    --col-droite: var(--seg-largeur);
   }
   * { box-sizing: border-box; }
   html, body { overflow-x: clip; }
@@ -33,12 +45,31 @@
       var(--paper);
   }
   .page { max-width: 1160px; margin: 0 auto; padding: clamp(16px, 4vw, 28px) clamp(12px, 4vw, 20px) 40px; }
-  .masthead {
-    display: flex; justify-content: space-between; align-items: end; gap: 20px;
-    padding: 10px 4px 22px; border-bottom: 2px solid var(--ink);
+  .masthead { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px 20px; align-items: end; padding: 10px 4px 22px; border-bottom: 2px solid var(--ink); }
+  .masthead > div:first-child { flex: 1 1 340px; min-width: 0; }
+  /* En-tête à deux colonnes de largeur FIXE (variables du layer base) :
+     colonne droite identique home/comparateur → header homogène (02/11).
+     Sous ~680 px, une seule colonne : le sélecteur passe sous le titre. */
+  @media (min-width: 680px) {
+    .masthead { display: grid; grid-template-columns: minmax(0, 1fr) var(--col-droite); }
+    .masthead-droite { width: var(--col-droite); }
   }
-  .eyebrow {
-    font-family: var(--mono); font-size: 12px; letter-spacing: 0.14em;
+  .masthead-droite { display: flex; flex-direction: column; align-items: stretch; gap: 10px; }
+  .masthead-droite > .stamp { align-self: flex-end; }
+  /* Sélecteur : pills sur DEUX LIGNES (nom + millésime, demande utilisateur
+     02/11) — largeur fixe --seg-largeur → paire identique sur les deux pages. */
+  .seg-nav { display: grid; grid-template-columns: repeat(2, var(--pill-largeur)); gap: 2px; border: 1.5px solid var(--ink); border-radius: 999px; padding: 3px; background: #fff; width: var(--seg-largeur); max-width: 100%; }
+  .seg-nav a { font-family: var(--mono); font-size: 12px; letter-spacing: 0.02em; color: var(--ink-soft); text-decoration: none; border-radius: 999px; padding: 6px 12px; min-height: 56px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; line-height: 1.25; transition: background 160ms ease, color 160ms ease; }
+  .seg-nav a b { font-weight: 600; white-space: nowrap; }
+  .seg-nav a span { white-space: nowrap; opacity: 0.85; }
+  /* Paire verrouillée : les deux pills font TOUJOURS la même largeur
+     (--pill-largeur), sur les deux pages et quel que soit l'onglet actif —
+     la pilule active (aria-current) ne doit jamais grossir (02/11). */
+  .seg-nav a { min-width: 0; }
+  .seg-nav a:hover { background: var(--saffron-soft); color: var(--ink); }
+  .seg-nav a[aria-current="page"] { background: var(--emerald); color: #fff; }
+  .seg-nav a:focus-visible { outline: 3px solid var(--saffron); outline-offset: 1px; }
+  .eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: 0.14em;
     text-transform: uppercase; color: var(--emerald); margin: 0 0 10px;
   }
   h1 {
@@ -153,7 +184,14 @@
 @layer responsive {
   @media (max-width: 940px) {
     .grid { grid-template-columns: 1fr; }
+  }
+  /* En-tête : sous le breakpoint du grid, le bloc droit repasse en ligne
+     sous le titre (mêmes conditions que le grid 1 colonne, layer base). */
+  @media (max-width: 679.98px) {
     .masthead { flex-direction: column; align-items: start; }
+    .masthead-droite { flex-direction: row; align-items: center; gap: 10px; flex-wrap: wrap; width: auto; }
+    .seg-nav { width: auto; max-width: 100%; }
+    .stamp { align-self: auto; }
   }
   /* Montants : taille pilotée par le conteneur, pas le viewport. */
   @container (max-width: 600px) {
@@ -168,6 +206,8 @@
   @media (max-width: 400px) {
     .ledger { font-size: 12.5px; }
     .foot { flex-direction: column; }
+    .masthead-droite { flex-direction: column; align-items: flex-start; }
+    .masthead .stamp { transform: none; }
   }
 }
 

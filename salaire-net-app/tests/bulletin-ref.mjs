@@ -1,7 +1,7 @@
-// D1 : fixture bulletin de référence unique — importée par les tests
-// unitaires (vitest) comme par les scénarios e2e (Playwright).
+﻿// D1 : fixture bulletin de rÃ©fÃ©rence unique â€” importÃ©e par les tests
+// unitaires (vitest) comme par les scÃ©narios e2e (Playwright).
 
-/** Entrées du bulletin réel : brut 21337.72, embauche 04/07/2022. */
+/** EntrÃ©es du bulletin rÃ©el : brut 21337.72, embauche 04/07/2022. */
 export const BULLETIN_ENTREES = {
   brutBase: 21337.72,
   dateEmbauche: '2022-07-04',
@@ -12,7 +12,7 @@ export const BULLETIN_ENTREES = {
   nbCharges: 0,
 };
 
-/** Attendus calculés (règles standard) + date figée pour l'ancienneté. */
+/** Attendus calculÃ©s (rÃ¨gles standard) + date figÃ©e pour l'anciennetÃ©. */
 export const BULLETIN_ATTENDUS = {
   refDateISO: '2026-09-24T00:00:00',
   tauxAncPct: 5,
@@ -20,5 +20,5 @@ export const BULLETIN_ATTENDUS = {
   cimr: 1344.28,
 };
 
-/** URL du serveur de prévisualisation pour les scénarios e2e. */
-export const PREVIEW_URL = 'http://localhost:4173/';
+/** URL du serveur de prÃ©visualisation pour les scÃ©narios e2e. */
+export const PREVIEW_URL = process.env.PREVIEW_URL || 'http://localhost:4173/';
