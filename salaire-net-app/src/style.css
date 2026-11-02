@@ -129,6 +129,15 @@
   .faq .qa + .qa { margin-top: 12px; border-top: 1px solid var(--line); padding-top: 12px; }
   .faq h3 { font-size: 15px; margin: 0 0 4px; }
   .faq p { font-size: 13.5px; color: var(--ink-soft); margin: 0; }
+  /* Contenu éditorial SEO (guides/examples) — prose lisible dans le style carte. */
+  .editorial { margin-top: 20px; }
+  .editorial h3 { font-size: 15px; margin: 16px 0 4px; }
+  .editorial p { font-size: 13.5px; color: var(--ink-soft); line-height: 1.6; margin: 0 0 10px; }
+  .editorial p:last-child { margin-bottom: 0; }
+  .editorial ol, .editorial ul { margin: 0 0 10px; padding-left: 20px; font-size: 13.5px; color: var(--ink-soft); line-height: 1.6; }
+  .editorial li { margin-bottom: 6px; }
+  .editorial b { color: var(--ink); }
+  .editorial a { color: var(--emerald-deep); font-weight: 600; }
 }
 
 @layer responsive {
@@ -155,7 +164,7 @@
 @layer print {
   @media print {
     body { background: #fff; }
-    .form-card, .faq, .stamp, .chips, .note-fp, .bandeau { display: none; }
+    .form-card, .faq, .editorial, .stamp, .chips, .note-fp, .bandeau { display: none; }
     .grid { grid-template-columns: 1fr; }
     .card, .net-main, .net-alt { box-shadow: none; }
     .net-main { background: #fff; color: #000; border-color: #000; }

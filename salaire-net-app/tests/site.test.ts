@@ -43,6 +43,24 @@ describe('JSON-LD servi — parsable par les moteurs (audit production)', () => 
   }
 });
 
+describe('contenu éditorial — enrichissement SEO 02/11', () => {
+  const horsRegions = (html: string) =>
+    html.replace(/<!-- SEO:[A-Z0-9-]+:START -->[\s\S]*?<!-- SEO:[A-Z0-9-]+:END -->/g, '');
+
+  it('3 sections par page, HORS régions de stamping (survivent à npm run seo)', () => {
+    const home = readFileSync(join(RACINE_APP, 'index.html'), 'utf8');
+    const comp = readFileSync(join(RACINE_APP, 'salaire-net-2027.html'), 'utf8');
+    for (const id of ['t-guide', 't-exemples', 't-2027-home']) {
+      expect(home).toContain(`aria-labelledby="${id}"`);
+    }
+    for (const id of ['t-changements', 't-gains', 't-utilisation']) {
+      expect(comp).toContain(`aria-labelledby="${id}"`);
+    }
+    expect(horsRegions(home).match(/card editorial/g)).toHaveLength(3);
+    expect(horsRegions(comp).match(/card editorial/g)).toHaveLength(3);
+  });
+});
+
 describe('site — source unique SEO (D3)', () => {
   it('URL et dates valides', () => {
     expect(SITE_URL.startsWith('https://')).toBe(true);
