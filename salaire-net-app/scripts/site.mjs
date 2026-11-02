@@ -6,6 +6,18 @@
 /** Domaine canonique (production Cloudflare Workers, custom domain). */
 export const SITE_URL = 'https://calculateur-salaire.ma';
 
+/** Cloudflare Web Analytics : token du site (dashboard → Analytics & Insights
+ *  → Setup Web Analytics). Vider la chaîne = script non injecté. */
+export const CF_WEB_ANALYTICS_TOKEN = '459376a51ea04058a85d25dc9b758bb9';
+
+/** Fichier HTML de vérification Google Search Console (Property = Domain
+ *  sc calculateur-salaire.ma, méthode HTML file). Vider = fichier non généré. */
+export const GOOGLE_SITE_VERIFICATION = '';
+
+/** Libellés des liens de 404.html (région SEO:FOOTER). */
+export const LIEN_404_HOME = '← Simulateur 2026';
+export const LIEN_404_COMPARATEUR = 'Comparateur 2027 vs 2026';
+
 /** Millésime fiscal affiché et fraîcheur signalée aux moteurs. */
 export const ANNEE = 2026;
 /** I3/D12 — millésime cible du comparateur (PLF 2027, projet n° 60-26). */

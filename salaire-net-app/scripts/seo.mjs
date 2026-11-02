@@ -2,14 +2,18 @@
 // Tout est RÉGÉNÉRÉ depuis scripts/site.mjs : aucune valeur SEO n'existe
 // ailleurs. Idempotent : relançable sans risque (les régions sont remplacées,
 // jamais les valeurs). I3 : stamping des 2 pages (home + comparateur).
-import { readFileSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   BANDEAU_COMPARATEUR,
   BANDEAU_PROJET,
+  CF_WEB_ANALYTICS_TOKEN,
   COMPARATEUR_FOOTER,
   DATE_MAJ,
+  GOOGLE_SITE_VERIFICATION,
+  LIEN_404_COMPARATEUR,
+  LIEN_404_HOME,
   LIEN_COMPARATEUR,
   PAGE_COMPARATEUR,
   PAGE_HOME,
@@ -46,9 +50,15 @@ function region(path, name, body) {
   if (!text.includes(start) || !text.includes(end)) {
     throw new Error(`${path} : région manquante SEO:${name}`);
   }
+  // Le body est écrit en \n ; on l'adapte aux CRLF éventuels du fichier cible.
+  const eol = text.includes('\r\n') ? '\r\n' : '\n';
+  const norm = body.replace(/\r?\n/g, eol);
+  // L'indentation du marqueur START est conservée pour le bloc régénéré.
+  const line = text.split('\n').find((l) => l.includes(start)) || '';
+  const ind = line.slice(0, line.length - line.trimStart().length);
   writeFileSync(
     full,
-    text.replace(new RegExp(`${start}[\\s\\S]*?${end}`, ''), `${start}\n${body}\n${end}`),
+    text.replace(new RegExp(`${start}[\\s\\S]*?${end}`, ''), `${start}${eol}${norm}${eol}${ind}${end}`),
   );
 }
 
@@ -142,6 +152,42 @@ const bandeauComp = `      <a class="bandeau" href="${LIEN_COMPARATEUR.href}">
 // -- D26 : bandeau « projet non voté » du comparateur (source site.mjs, D19).
 const bandeauProjet = `        ⚠️ <b>${esc(BANDEAU_PROJET.titre)}</b> — ${esc(BANDEAU_PROJET.detail)}`;
 
+// -- Analytics / Search Console : snippets conditionnels (site.mjs), présents
+// sur les 2 pages + 404.html (le trafic des URL cassées reste utile à voir).
+const beacon = CF_WEB_ANALYTICS_TOKEN
+  ? `    <script defer src="https://static.cloudflareinsights.com/beacon.min.js"
+      data-cf-beacon='{"token": "${CF_WEB_ANALYTICS_TOKEN}"}'></script>\n`
+  : '';
+
+const gscMeta = GOOGLE_SITE_VERIFICATION
+  ? `    <meta name="google-site-verification" content="${GOOGLE_SITE_VERIFICATION}" />\n`
+  : '';
+
+/** Insère `snippet` après la balise `after` (idempotent : toute insertion
+ * précédente entre `after` et le commentaire ANCHOR:NAME est remplacée). */
+function inject(path, after, snippet, name) {
+  const full = insideRoot(path);
+  const text = readFileSync(full, 'utf8');
+  if (!text.includes(after)) {
+    throw new Error(`${path} : balise d'ancrage introuvable (${after})`);
+  }
+  const escAfter = after.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&');
+  // `<head>` est ancré en fin de ligne : sinon le motif matche aussi `</head>`.
+  const esc = after === '<head>' ? `${escAfter}[ \\t]*(?=\\r?\\n)` : escAfter;
+  const re = new RegExp(
+    `${esc}(?:[ \\t]*\\r?\\n[ \\t]*<!--\\s*ANCHOR:${name}:START\\s*-->[\\s\\S]*?<!--\\s*ANCHOR:${name}:END\\s*-->)?`,
+    '',
+  );
+  const tagged = snippet.trimEnd()
+    ? `\n<!-- ANCHOR:${name}:START -->\n${snippet.trimEnd()}\n<!-- ANCHOR:${name}:END -->`
+    : '';
+  writeFileSync(full, text.replace(re, () => after + tagged));
+}
+
+// -- 404 : mêmes liens que la page, régénérés depuis site.mjs (pas de drift).
+const footer404 = `        <a class="lien primaire" href="${PAGE_HOME.chemin ? `/${PAGE_HOME.chemin}` : '/'}">${esc(LIEN_404_HOME)}</a>
+        <a class="lien" href="/${PAGE_COMPARATEUR.chemin}">${esc(LIEN_404_COMPARATEUR)}</a>`;
+
 // -- robots.txt / sitemap.xml : fichiers entièrement générés (2 URL).
 const robots = `User-agent: *
 Allow: /
@@ -175,9 +221,25 @@ region(PAGE_COMPARATEUR.fichier, 'FAQ-BODY', faqBody(PAGE_COMPARATEUR.faq));
 region(PAGE_COMPARATEUR.fichier, 'FAQ-JSONLD', jsonLd(PAGE_COMPARATEUR));
 region(PAGE_COMPARATEUR.fichier, 'PROJET', bandeauProjet);
 region(PAGE_COMPARATEUR.fichier, 'FOOTER', footerComp);
+region('404.html', 'FOOTER', footer404);
 writeFileSync(insideRoot('public/robots.txt'), robots);
 writeFileSync(insideRoot('public/sitemap.xml'), sitemap);
 
+// -- Analytics : balise beacon (les 3 pages) + meta/fichier de vérification GSC.
+for (const f of ['index.html', PAGE_COMPARATEUR.fichier, '404.html']) {
+  inject(f, '</head>', beacon, 'BEACON');
+  inject(f, '<head>', gscMeta, 'GSC');
+}
+if (GOOGLE_SITE_VERIFICATION) {
+  mkdirSync(join(ROOT, 'public'), { recursive: true });
+  writeFileSync(
+    insideRoot(`public/google${GOOGLE_SITE_VERIFICATION}.html`),
+    `google-site-verification: google${GOOGLE_SITE_VERIFICATION}.html`,
+  );
+}
+
 console.log(
-  `SEO OK : index.html + ${PAGE_COMPARATEUR.fichier}, robots.txt, sitemap.xml (2 URL) régénérés depuis scripts/site.mjs`,
+  `SEO OK : index.html + ${PAGE_COMPARATEUR.fichier}, robots.txt, sitemap.xml (2 URL) régénérés depuis scripts/site.mjs` +
+    (CF_WEB_ANALYTICS_TOKEN ? ' · Cloudflare Web Analytics actif' : ' · Web Analytics inactif (token vide)') +
+    (GOOGLE_SITE_VERIFICATION ? ' · vérification Search Console active' : ''),
 );
