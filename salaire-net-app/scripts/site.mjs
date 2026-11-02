@@ -101,8 +101,9 @@ export const LIEN_COMPARATEUR = {
  * Exemple chiffré = vecteur moteur validé par golden test (brut 10 000 → +442,71). */
 export const BANDEAU_COMPARATEUR = {
   badge: `PLF ${ANNEE_CIBLE}`,
-  pitch: `Comparez votre net ${ANNEE_CIBLE} vs ${ANNEE}`,
-  exemple: 'brut 10 000 → +442,71 MAD/mois',
+  pitch: 'Votre net peut changer en 2027',
+  exemple: 'Simulateur : brut 10 000 → +442,71 MAD/mois',
+  cta: 'Comparer',
 };
 
 /** Pied de page du comparateur : disclaimer projet + retour simulateur. */

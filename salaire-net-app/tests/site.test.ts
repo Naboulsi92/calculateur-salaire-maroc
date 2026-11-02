@@ -124,8 +124,14 @@ describe('comparateur — source unique SEO page 2 (D12–D15)', () => {
 
   it('bandeau visible home → comparateur (D24) : même cible que le maillage', () => {
     expect(BANDEAU_COMPARATEUR.badge).toBe(`PLF ${ANNEE_CIBLE}`);
-    expect(BANDEAU_COMPARATEUR.pitch).toContain(String(ANNEE_CIBLE));
-    expect(BANDEAU_COMPARATEUR.exemple).toMatch(/^brut [\d\s]+ → \+[\d,]+ MAD\/mois$/);
+    // Le pitch peut évoquer l'année ou le changement — l'intention doit rester lisible.
+    expect(BANDEAU_COMPARATEUR.pitch).toMatch(/2027|changer/);
+    expect(BANDEAU_COMPARATEUR.exemple).toMatch(/brut [\d\s]+ → \+[\d,]+ MAD\/mois$/);
+    // Feedback 02/11 : le lien doit se lire comme un bouton → verbe d'action.
+    expect(BANDEAU_COMPARATEUR.cta).toMatch(/[A-Za-zÀ-ÿ]/);
+    const html = readFileSync(join(RACINE_APP, 'index.html'), 'utf8');
+    expect(html).toContain('bandeau-cta');
+    expect(html).toContain(BANDEAU_COMPARATEUR.cta);
   });
 
   it('OG images distinctes par page', () => {

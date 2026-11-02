@@ -131,10 +131,12 @@ const footerComp = `      <span>${esc(COMPARATEUR_FOOTER.disclaimer)}</span>
       <span><a href="${COMPARATEUR_FOOTER.lienRetour.href}">${esc(COMPARATEUR_FOOTER.lienRetour.label)}</a> · Textes : ${externe(COMPARATEUR_FOOTER.texteLegal.url, esc(COMPARATEUR_FOOTER.texteLegal.label))}</span>`;
 
 // -- D24 : bandeau d'entrée visible vers le comparateur (home uniquement).
+// Marqueur SEO + verbe d'action dans une pastille CTA : le lien doit se lire
+// comme un bouton menant à une autre page (feedback utilisateur 02/11).
 const bandeauComp = `      <a class="bandeau" href="${LIEN_COMPARATEUR.href}">
         <span class="badge-nouveau">${esc(BANDEAU_COMPARATEUR.badge)}</span>
-        <span class="bandeau-texte"><b>${esc(BANDEAU_COMPARATEUR.pitch)}</b> — ${esc(BANDEAU_COMPARATEUR.exemple)}</span>
-        <span class="bandeau-fleche" aria-hidden="true">→</span>
+        <span class="bandeau-texte"><b>${esc(BANDEAU_COMPARATEUR.pitch)}</b><small>${esc(BANDEAU_COMPARATEUR.exemple)}</small></span>
+        <span class="bandeau-cta">${esc(BANDEAU_COMPARATEUR.cta)}<span class="bandeau-fleche" aria-hidden="true">→</span></span>
       </a>`;
 
 // -- D26 : bandeau « projet non voté » du comparateur (source site.mjs, D19).
