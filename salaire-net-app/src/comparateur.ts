@@ -65,7 +65,9 @@ function cellulesEcart(l: LigneComparateur): [HTMLTableCellElement, HTMLTableCel
     sub.textContent = `an : ${signe(l.ecartAnnuel)}${montant(Math.abs(l.ecartAnnuel))}`;
     tdD.appendChild(sub);
   }
-  tdP.textContent = l.ecartPct === null ? '—' : `${signe(l.ecart)}${pct(l.ecartPct)}`;
+  // % signé par le glyphe signe() + valeur absolue : écartPct porte déjà le
+  // signe par le calcul, préfixer à nouveau doublait le « - » (SNI 02/11).
+  tdP.textContent = l.ecartPct === null ? '—' : `${signe(l.ecart)}${pct(Math.abs(l.ecartPct))}`;
   return [tdD, tdP];
 }
 

@@ -62,6 +62,10 @@ if (norm(fp[1]) !== '2500,00' || norm(fp[2]) !== '2916,67') {
 }
 if (!fp[0].includes('25 % → 45 %')) throw new Error('Taux FP absent du libellé');
 if (norm(fp[4]) !== '+16,67%') throw new Error(`Écart % FP attendu +16,67 %, obtenu: ${fp[4]}`);
+// Ligne à écart négatif : signe unique (bug « −-5,95 % » corrigé)
+const sni = rows.find((r) => r[0].startsWith('SNI'));
+if (norm(sni[3]).startsWith('−-')) throw new Error(`Double signe écart SNI: ${sni[3]}`);
+if (norm(sni[4]) !== '−5,95%') throw new Error(`Écart % SNI attendu −5,95 %, obtenu: ${sni[4]}`);
 const netRow = rows.find((r) => r[0] === 'Net à payer');
 if (norm(netRow[1]) !== '9903,64' || norm(netRow[2]) !== '10346,35') {
   throw new Error(`Ligne net inattendue: ${netRow[1]} / ${netRow[2]}`);
