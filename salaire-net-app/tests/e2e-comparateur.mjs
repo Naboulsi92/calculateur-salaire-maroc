@@ -51,20 +51,32 @@ if (!badges.includes('FPplafonné2027')) throw new Error('Badge FP plafonné 202
 console.log('badges OK');
 
 // 6) Lignes du bulletin comparé : FP positif 2 500,00 → 2 916,67 ; net +442,71
+// Colonnes : Ligne · 2026 · 2027 · Écart MAD · Écart % (demande 02/11)
 const rows = await page.$$eval('#lignes tr', (trs) =>
   trs.map((tr) => [...tr.children].map((td) => td.textContent.trim())),
 );
+if (rows.length !== 14) throw new Error(`14 lignes attendues, obtenu: ${rows.length}`);
 const fp = rows.find((r) => r[0].startsWith('Frais professionnels'));
 if (norm(fp[1]) !== '2500,00' || norm(fp[2]) !== '2916,67') {
   throw new Error(`FP attendu 2 500,00 → 2 916,67, obtenu: ${fp[1]} / ${fp[2]}`);
 }
 if (!fp[0].includes('25 % → 45 %')) throw new Error('Taux FP absent du libellé');
+if (norm(fp[4]) !== '+16,67%') throw new Error(`Écart % FP attendu +16,67 %, obtenu: ${fp[4]}`);
 const netRow = rows.find((r) => r[0] === 'Net à payer');
 if (norm(netRow[1]) !== '9903,64' || norm(netRow[2]) !== '10346,35') {
   throw new Error(`Ligne net inattendue: ${netRow[1]} / ${netRow[2]}`);
 }
-// Cellule d'écart = MAD + sous-ligne (% · annuel) → startsWith sur le MAD.
+// Cellule d'écart = MAD + sous-ligne « an : » → startsWith sur le MAD.
 if (!netRow[3].startsWith('+442,71')) throw new Error(`Écart net inattendu: ${netRow[3]}`);
+if (norm(netRow[4]) !== '+4,47%') throw new Error(`Écart % net attendu +4,47 %, obtenu: ${netRow[4]}`);
+// Ligne annuelle : montants × 12, écart = gain annuel, % identique, pas de sous-ligne.
+const netAnn = rows.find((r) => r[0] === 'Net à payer annuel (× 12)');
+if (!netAnn) throw new Error('Ligne « Net à payer annuel (× 12) » absente');
+if (norm(netAnn[1]) !== '118843,68' || norm(netAnn[2]) !== '124156,20') {
+  throw new Error(`Net annuel inattendu: ${netAnn[1]} / ${netAnn[2]}`);
+}
+if (norm(netAnn[3]) !== '+5312,52') throw new Error(`Écart annuel attendu +5.312,52, obtenu: ${netAnn[3]}`);
+if (norm(netAnn[4]) !== '+4,47%') throw new Error(`Écart % annuel attendu +4,47 %, obtenu: ${netAnn[4]}`);
 console.log('lignes bulletin OK');
 
 // 7) Chip 2028 : stamp bascule, écart identique (+442,71 à brut 10 000)

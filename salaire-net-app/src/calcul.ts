@@ -398,6 +398,9 @@ export function lignesComparateur(a: Resultat, b: Resultat, e: EntreesLignes): L
     { id: 'famille', label: `Déduction famille (${e.nbCharges} pers.)`, a: a.familleDed, b: b.familleDed, annuelA: null, annuelB: null, colore: false },
     { id: 'ir-net', label: 'IR net', a: retenue(a.irNet), b: retenue(b.irNet), annuelA: retenue(a.annual.irNet), annuelB: retenue(b.annual.irNet), colore: true, accent: true },
     { id: 'net', label: 'Net à payer', a: a.net, b: b.net, annuelA: a.annual.net, annuelB: b.annual.net, colore: true, accent: true },
+    // Demande 02/11 : version annuelle du net dans le tableau — a/b y sont des
+    // MONTANTS ANNUELS (× 12) ; ecartDe rend le même % que la ligne mensuelle.
+    { id: 'net-annuel', label: 'Net à payer annuel (× 12)', a: a.annual.net, b: b.annual.net, annuelA: null, annuelB: null, colore: true, accent: true },
   ];
   return lignes.map((l) => {
     const m = ecartDe(l.a, l.b);

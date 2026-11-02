@@ -11,10 +11,10 @@ const lignes = lignesComparateur(r26, r27, entreesLignes);
 const parId = Object.fromEntries(lignes.map((l) => [l.id, l]));
 
 describe('lignesComparateur — structure (C1/I2)', () => {
-  it('13 lignes, mêmes ids que lignesPaie, dans l’ordre', () => {
+  it('14 lignes : lignesPaie + ligne annuelle, dans l’ordre', () => {
     expect(lignes.map((l) => l.id)).toEqual([
       'brut-majore', 'prime-anc', 'sbi', 'total-gains', 'fp', 'cnss', 'amo',
-      'cimr', 'sni', 'ir-brut', 'famille', 'ir-net', 'net',
+      'cimr', 'sni', 'ir-brut', 'famille', 'ir-net', 'net', 'net-annuel',
     ]);
   });
 
@@ -26,8 +26,8 @@ describe('lignesComparateur — structure (C1/I2)', () => {
     expect(fp.colore).toBe(false);
   });
 
-  it('l’écart n’est coloré que sur IR brut, IR net, Net', () => {
-    expect(lignes.filter((l) => l.colore).map((l) => l.id)).toEqual(['ir-brut', 'ir-net', 'net']);
+  it('l’écart n’est coloré que sur IR brut, IR net, Net, Net annuel', () => {
+    expect(lignes.filter((l) => l.colore).map((l) => l.id)).toEqual(['ir-brut', 'ir-net', 'net', 'net-annuel']);
   });
 
   it('bulletin 10 000 : IR −601,56 → −158,85, net 8 903,64 → 9 346,35', () => {
@@ -37,13 +37,13 @@ describe('lignesComparateur — structure (C1/I2)', () => {
     expect(round2(parId['ir-brut']!.b - parId['ir-brut']!.a)).toBe(442.71);
   });
 
-  it('lignes accentuées : SBI, SNI, IR net, Net', () => {
-    expect(lignes.filter((l) => l.accent).map((l) => l.id)).toEqual(['sbi', 'sni', 'ir-net', 'net']);
+  it('lignes accentuées : SBI, SNI, IR net, Net, Net annuel', () => {
+    expect(lignes.filter((l) => l.accent).map((l) => l.id)).toEqual(['sbi', 'sni', 'ir-net', 'net', 'net-annuel']);
   });
 
-  it('seules fp, sni, ir-brut, ir-net, net bougent entre millésimes (mêmes entrées)', () => {
+  it('seules fp, sni, ir-brut, ir-net, net, net-annuel bougent entre millésimes (mêmes entrées)', () => {
     const quiBougent = lignes.filter((l) => round2(l.b - l.a) !== 0).map((l) => l.id);
-    expect(quiBougent).toEqual(['fp', 'sni', 'ir-brut', 'ir-net', 'net']);
+    expect(quiBougent).toEqual(['fp', 'sni', 'ir-brut', 'ir-net', 'net', 'net-annuel']);
   });
 
   it('écart mensuel + % + écart annuel ligne à ligne (Spec §1, revue code)', () => {
@@ -73,6 +73,17 @@ describe('lignesComparateur — structure (C1/I2)', () => {
     expect(parId['cnss']!.ecartPct).toBeNull();
     expect(parId['cnss']!.ecartAnnuel).toBe(0);
     expect(parId['cnss']!.ecartAnnuelPct).toBeNull();
+  });
+
+  it('ligne Net à payer annuel : montants × 12, écart = gain annuel, même %', () => {
+    const na = parId['net-annuel']!;
+    expect(na.label).toBe('Net à payer annuel (× 12)');
+    expect(na.a).toBeCloseTo(12 * 8903.64, 2); // 106.843,68
+    expect(na.b).toBeCloseTo(12 * 9346.35, 2); // 112.156,20
+    expect(na.ecart).toBe(5312.52);
+    expect(na.ecartPct).toBe(4.97); // même base relative (× 12 des deux côtés)
+    expect(na.ecartAnnuel).toBeNull(); // déjà annualisée → pas de sous-ligne « an : »
+    expect(na.colore).toBe(true);
   });
 
   it('déduction famille : non annualisée, écart nul entre millésimes', () => {

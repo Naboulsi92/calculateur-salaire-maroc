@@ -28,7 +28,6 @@ const netEcartPct = document.getElementById('net-ecart-pct')!;
 const badges = document.getElementById('badges')!;
 const warningsBox = document.getElementById('warnings')!;
 const lignesBody = document.getElementById('lignes')!;
-const annualLine = document.getElementById('annual-line')!;
 
 // C2/D5 via le formulaire partagé. Défaut brut = 10 000 (prototype T3 validé) :
 // le sujet de la page est l'écart, or au SMIG les deux années sont à IR nul.
@@ -41,32 +40,33 @@ let anneeCible = CHIPS[0]!; // 2027 par défaut
 
 const signe = (n: number): string => (n > 0 ? '+' : '−');
 
-/** Cellule d'écart : MAD + sous-ligne (% · annuel). Gris neutre sauf sur les
- * lignes colorées (IR/Net, T3). % même signe que l'écart, base = |2026|. */
-function celluleEcart(l: LigneComparateur): HTMLTableCellElement {
-  const td = document.createElement('td');
-  td.className = 'num mono';
+/** Cellules d'écart (l.4 = MAD + sous-ligne « an : », l.5 = %). Gris neutre
+ * sauf sur les lignes colorées (IR/Net/Net annuel, T3). % SIGNÉ par rapport à
+ * |2026| (mensuel ; annuel sur la ligne annuelle). */
+function cellulesEcart(l: LigneComparateur): [HTMLTableCellElement, HTMLTableCellElement] {
+  const tdD = document.createElement('td');
+  const tdP = document.createElement('td');
+  tdD.className = 'num mono';
+  tdP.className = 'num mono';
   if (l.ecart === 0) {
-    td.classList.add('ecart-nul');
-    td.textContent = '—';
-    return td;
+    tdD.classList.add('ecart-nul');
+    tdP.classList.add('ecart-nul');
+    tdD.textContent = '—';
+    tdP.textContent = '—';
+    return [tdD, tdP];
   }
-  td.classList.add(l.colore ? (l.ecart > 0 ? 'ecart-pos' : 'ecart-neg') : 'ecart-nul');
-  const madCell = document.createElement('span');
-  madCell.textContent = `${signe(l.ecart)}${montant(Math.abs(l.ecart))}`;
-  td.appendChild(madCell);
-  const details: string[] = [];
-  if (l.ecartPct !== null) details.push(pct(l.ecartPct));
+  const cls = l.colore ? (l.ecart > 0 ? 'ecart-pos' : 'ecart-neg') : 'ecart-nul';
+  tdD.classList.add(cls);
+  tdP.classList.add(cls);
+  tdD.textContent = `${signe(l.ecart)}${montant(Math.abs(l.ecart))}`;
   if (l.ecartAnnuel !== null && l.ecartAnnuel !== 0) {
-    details.push(`an : ${signe(l.ecartAnnuel)}${montant(Math.abs(l.ecartAnnuel))}`);
-  }
-  if (details.length) {
     const sub = document.createElement('span');
     sub.className = 'ecart-sub';
-    sub.textContent = details.join(' · ');
-    td.appendChild(sub);
+    sub.textContent = `an : ${signe(l.ecartAnnuel)}${montant(Math.abs(l.ecartAnnuel))}`;
+    tdD.appendChild(sub);
   }
-  return td;
+  tdP.textContent = l.ecartPct === null ? '—' : `${signe(l.ecart)}${pct(l.ecartPct)}`;
+  return [tdD, tdP];
 }
 
 function renderChips(): void {
@@ -146,7 +146,8 @@ function recalc(): void {
     warningsBox.appendChild(p);
   }
 
-  // C1 : le modèle de lignes vient du moteur — ici simple rendu (adapter).
+  // C1 : le modèle de lignes vient du moteur — ici simple rendu (adapter),
+  // 5 colonnes : Ligne · 2026 · 2027 · Écart MAD · Écart %.
   lignesBody.innerHTML = '';
   for (const ligne of lignesComparateur(rA, rB, {
     tauxCimr: inp.tauxCimr,
@@ -154,7 +155,7 @@ function recalc(): void {
     nbCharges: inp.nbCharges,
   })) {
     const tr = document.createElement('tr');
-    if (ligne.id === 'net') tr.className = 'net-row';
+    if (ligne.id === 'net' || ligne.id === 'net-annuel') tr.className = 'net-row';
     else if (ligne.accent) tr.className = 'strong';
 
     const tdL = document.createElement('td');
@@ -168,20 +169,10 @@ function recalc(): void {
     tdB.className = 'num mono';
     tdB.textContent = montant(ligne.b);
 
-    tr.append(tdL, tdA, tdB, celluleEcart(ligne));
+    const [tdEcart, tdPct] = cellulesEcart(ligne);
+    tr.append(tdL, tdA, tdB, tdEcart, tdPct);
     lignesBody.appendChild(tr);
   }
-
-  // Synthèse annuelle (mensuel × 12, convention round2 de l'app) + % relatif
-  const netAnA = rA.annual.net;
-  const gainAn = round2(rB.annual.net - netAnA);
-  const pctAn = gainAn === 0 || netAnA === 0 ? '' : ` (${pct(round2((gainAn / netAnA) * 100))})`;
-  annualLine.innerHTML =
-    `Net annuel ${rA.annee} : <b>${mad(netAnA)}</b>` +
-    ` · Net annuel ${rB.annee} : <b>${mad(rB.annual.net)}</b>` +
-    ` · <b class="${gainAn > 0 ? 'pos' : gainAn < 0 ? 'neg' : ''}">${
-      gainAn === 0 ? 'Gain annuel : —' : `Gain annuel : ${signe(gainAn)}${montant(Math.abs(gainAn))}${pctAn}`
-    }</b>`;
 
   ancAide.textContent = `Ancienneté : ${rA.anciennete.libelle} — prime ${mad(rA.primeAnc)}/mois.`;
 }
