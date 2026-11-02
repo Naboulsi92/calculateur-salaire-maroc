@@ -131,6 +131,9 @@ describe('lignesPaie — modèle de lignes (C1)', () => {
   it('taux nominaux et montants cohérents avec le résultat', () => {
     const parId = Object.fromEntries(lignes.map((l) => [l.id, l]));
     expect(parId.fp.tauxPct).toBe(25);
+    expect(parId.fp.label).toContain('déduction fiscale');
+    expect(parId.fp.mensuel).toBeGreaterThan(0); // FP positif (T3) : fiscal, pas une retenue
+    expect(parId.fp.annuel).toBeGreaterThan(0);
     expect(parId.cnss.tauxPct).toBeCloseTo(4.48, 10);
     expect(parId.amo.tauxPct).toBeCloseTo(2.26, 10);
     expect(parId.cimr.tauxPct).toBe(6);

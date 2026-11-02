@@ -320,12 +320,15 @@ export interface EntreesLignes {
 const retenue = (n: number): number => (n === 0 ? 0 : -n);
 
 export function lignesPaie(r: Resultat, e: EntreesLignes): LignePaie[] {
+  // FP affiché POSITIF + « (déduction fiscale) » (décision T3, aligné sur le
+  // comparateur) : abaisse l'IR, n'est pas prélevé du net — note explicative
+  // sous la table (index.html).
   return [
     { id: 'brut-majore', label: 'Brut majoré (base + ancienneté)', mensuel: r.brutMajore, annuel: r.annual.brutMajore },
     { id: 'prime-anc', label: 'Prime ancienneté', mensuel: r.primeAnc, annuel: r.annual.primeAnc },
     { id: 'sbi', label: 'SBI = brut majoré (base imposable)', mensuel: r.sbi, annuel: r.annual.sbi, accent: true },
     { id: 'total-gains', label: 'Total gains (SBI + panier + transport)', mensuel: r.totalGains, annuel: r.annual.totalGains },
-    { id: 'fp', label: 'Frais professionnels', tauxPct: r.tauxFP * 100, mensuel: retenue(r.fp), annuel: retenue(r.annual.fp) },
+    { id: 'fp', label: 'Frais professionnels (déduction fiscale)', tauxPct: r.tauxFP * 100, mensuel: r.fp, annuel: r.annual.fp },
     { id: 'cnss', label: `CNSS (plaf. ${court(CNSS.plafond)})`, tauxPct: CNSS.taux * 100, mensuel: retenue(r.cnss), annuel: retenue(r.annual.cnss) },
     { id: 'amo', label: 'AMO', tauxPct: e.amoOui ? AMO.taux * 100 : undefined, mensuel: retenue(r.amo), annuel: retenue(r.annual.amo) },
     { id: 'cimr', label: 'CIMR', tauxPct: e.tauxCimr, mensuel: retenue(r.cimr), annuel: retenue(r.annual.cimr) },
