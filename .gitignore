@@ -27,6 +27,12 @@ npm-debug.log*
 docs/
 todo.md
 
+# Skills agent (locaux uniquement)
+.scratch/
+.impeccable/
+CONTEXT.md
+AGENTS.md
+
 # OS & éditeurs
 Thumbs.db
 .DS_Store
