@@ -9,6 +9,7 @@ const page = await browser.newPage({ viewport: { width: 320, height: 800 } });
 for (const [url, nom] of [
   [PREVIEW_URL, 'home'],
   [new URL('salaire-net-2027', PREVIEW_URL).href, 'comparateur'],
+  [new URL('salaire-net-8000', PREVIEW_URL).href, '8000'],
 ]) {
   await page.goto(url, { waitUntil: 'domcontentloaded' });
   await page.waitForTimeout(250);

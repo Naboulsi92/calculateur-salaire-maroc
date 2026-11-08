@@ -24,7 +24,7 @@ export const ANNEE = 2026;
 export const ANNEE_CIBLE = 2027;
 
 /** Dernière mise à jour éditoriale (lastmod sitemap + dateModified JSON-LD). */
-export const DATE_MAJ = '2026-11-02';
+export const DATE_MAJ = '2026-11-08';
 
 /** Questions visibles (.qa) ET graphe FAQPage : même source, pas de drift.
  * Exemples chiffrés issus du moteur (profil par défaut 2026 : panier 500,
@@ -90,6 +90,65 @@ export const PAGE_COMPARATEUR = {
   ogImage: 'og-comparateur-1200x630.png',
   nomApp: `Comparateur Salaire Net ${ANNEE_CIBLE} vs ${ANNEE} (PLF ${ANNEE_CIBLE})`,
   faq: FAQ_COMPARATEUR,
+};
+
+// ---------------------------------------------------------------------------
+// Build 1/7 (ticket 09) — page F6 « Quel brut pour 8 000 MAD de net ? ».
+// Chiffres = oracles moteur (04/11/2026), re-vérifiés ≤ 0,02 MAD par
+// scripts/chiffres-8000.mjs à chaque build ; FAQ wording lexiqué (CONTEXT.md).
+// ---------------------------------------------------------------------------
+
+/** FAQ dédiée F6 : visible (.qa) ET graphe FAQPage — même source. */
+export const FAQ_8000 = [
+  {
+    q: 'Quel brut de base pour 8 000 MAD de net au Maroc ?',
+    a: "7 671,06 MAD de brut de base avec le profil courant (panier 500, transport 500, AMO, sans CIMR ni personne à charge). Dans cette zone de revenu, le net dépasse le brut de base : panier et transport (1 000 MAD ici) s'ajoutent au bulletin sans entrer dans les bases de cotisations ni d'impôt. Avec un CIMR ou des enfants à charge, le brut nécessaire baisse : recalculez votre cas dans le simulateur complet.",
+  },
+  {
+    q: 'Pourquoi le net est-il supérieur au brut de base ?',
+    a: "Parce que panier et transport (1 000 MAD ici) s'ajoutent au bulletin sans entrer dans les bases CNSS, AMO ni IR. À ce niveau de revenu, l'IR devient si faible que le net dépasse le brut de base.",
+  },
+  {
+    q: 'Et en 2027 pour viser 8 000 MAD de net ?',
+    a: "Le PLF 2027 (projet n° 60-26) supprime la tranche à 30 % et exonère jusqu'à 60 000 MAD/an : l'IR tombe à zéro jusqu'à environ 8 375 MAD de brut de base. Le même net de 8 000 MAD s'obtiendra alors avec un brut de base plus bas — comparez les deux millésimes dans le comparateur 2027.",
+  },
+];
+
+export const PAGE_8000 = {
+  fichier: 'salaire-net-8000.html',
+  chemin: 'salaire-net-8000',
+  titre: 'Salaire net 8 000 MAD : quel brut ? (Maroc 2026)',
+  description:
+    'Le brut de base pour 8 000 MAD de net au Maroc en 2026 : bulletin inversé calculé au centime par le moteur (LF 50-25), CNSS, AMO, IR ligne à ligne, net annuel et table brut → net autour de 8 000.',
+  ogDescription:
+    "Votre bulletin à l'envers : 8 000 MAD de net ⇒ 7 671,06 MAD de brut de base (LF 2026), CNSS, AMO, IR ligne à ligne.",
+  ogImage: 'og-salaire-net-8000-1200x630.png',
+  nomApp: 'Bulletin inversé 8 000 MAD net (Maroc 2026)',
+  faq: FAQ_8000,
+};
+
+/** Pied de page F6 : maillage retour outils + textes + barèmes vérifiés (date
+ * de VÉRIFICATION HUMAINE des barèmes, grillée au ticket 09 le 05/11 — le
+ * build re-vérifie automatiquement les mêmes oracles à chaque déploiement ;
+ * stampée par seo.mjs, forme inchangée du gabarit prod). */
+export const FOOT_8000 = {
+  maillage: [
+    { href: '/', label: '← Simulateur 2026' },
+    { href: '/salaire-net-2027', label: 'Comparateur PLF 2027' },
+  ],
+  textes: {
+    url: 'https://www.tax.gov.ma',
+    label: 'CGI/DGI',
+    refs: 'LF 50-25 · PLF 2027 (projet n° 60-26)',
+  },
+  dateVerification: '05/11/2026',
+};
+
+/** Maillage entrant F6 (ADR §4) : lien contextuel home (guide) + croisé depuis
+ * le comparateur — href verrouillé par site.test, ancres en prose des pages. */
+export const LIEN_SNE8000 = {
+  href: `/${PAGE_8000.chemin}`,
+  label: 'Salaire net 8 000 MAD : quel brut ?',
 };
 
 /** Métadonnées de la page principale (simulateur, millésime ANNEE). */

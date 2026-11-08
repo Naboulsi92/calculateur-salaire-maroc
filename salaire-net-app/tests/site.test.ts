@@ -9,13 +9,18 @@ import {
   COMPARATEUR_FOOTER,
   DATE_MAJ,
   FAQ,
+  FAQ_8000,
+  FOOT_8000,
   LIEN_COMPARATEUR,
+  LIEN_SNE8000,
+  PAGE_8000,
   PAGE_COMPARATEUR,
   PAGE_HOME,
   PORTAILS,
   REFS_TEXTES,
   SITE_URL,
 } from '../scripts/site.mjs';
+import { calcMensuel, lignesPaie } from '../src/calcul';
 
 const RACINE_APP = join(import.meta.dirname, '..');
 
@@ -25,6 +30,7 @@ describe('JSON-LD servi — parsable par les moteurs (audit production)', () => 
   for (const [nom, page] of [
     ['index.html', PAGE_HOME],
     ['salaire-net-2027.html', PAGE_COMPARATEUR],
+    ['salaire-net-8000.html', PAGE_8000],
   ] as const) {
     it(`${nom} : graphe WebApplication + FAQPage (${page.faq.length} questions)`, () => {
       const html = readFileSync(join(RACINE_APP, nom), 'utf8');
@@ -148,5 +154,112 @@ describe('comparateur — source unique SEO page 2 (D12–D15)', () => {
     expect(BANDEAU_PROJET.titre).toContain('2026'); // daté (fr : 27/10/2026)
     expect(BANDEAU_PROJET.detail).toContain('Bulletin officiel');
     expect(BANDEAU_PROJET.detail).toContain('PLF');
+  });
+});
+
+describe('F6 8000 — page « Bulletin renforcé » (ticket 09, build 1/7)', () => {
+  const PAGE = 'salaire-net-8000.html';
+
+  it('chemin public sans extension, titre mot-clé ≤ 59 car, OG image dédiée', () => {
+    expect(PAGE_8000.chemin).toBe('salaire-net-8000');
+    expect(PAGE_8000.fichier).toBe(PAGE);
+    expect(PAGE_8000.titre).toContain('Salaire net 8 000 MAD');
+    expect(PAGE_8000.titre).toContain('Maroc');
+    expect(PAGE_8000.titre.length).toBeLessThanOrEqual(59);
+    expect(PAGE_8000.description.length).toBeGreaterThanOrEqual(50);
+    expect(PAGE_8000.ogImage).toBe('og-salaire-net-8000-1200x630.png');
+    expect(
+      new Set([PAGE_HOME.ogImage, PAGE_COMPARATEUR.ogImage, PAGE_8000.ogImage]).size,
+    ).toBe(3);
+    expect(PAGE_8000.nomApp).toContain('8 000');
+  });
+
+  it('FAQ F6 : 3 Q/R substantielles (double source body + JSON-LD)', () => {
+    expect(FAQ_8000).toBe(PAGE_8000.faq); // même tableau : body et graphe ne peuvent diverger
+    expect(PAGE_8000.faq.length).toBeGreaterThanOrEqual(3);
+    for (const { q, a } of PAGE_8000.faq) {
+      expect(q.length).toBeGreaterThan(10);
+      expect(a.length).toBeGreaterThan(80); // anti one-liner (même plancher que les autres pages)
+    }
+  });
+
+  it('lexique (CONTEXT.md) : « brut de base » partout, jamais « palier »', () => {
+    const tout = [
+      PAGE_8000.titre,
+      PAGE_8000.description,
+      PAGE_8000.ogDescription,
+      ...FAQ_8000.map(({ q, a }) => `${q} ${a}`),
+    ].join(' ');
+    expect(tout).toContain('brut de base');
+    expect(tout).not.toMatch(/palier/i);
+  });
+
+  it('régions CHIFFRES constituées : 3 count-up data-n, 4 régions présentes', () => {
+    const html = readFileSync(join(RACINE_APP, PAGE), 'utf8');
+    for (const reg of ['TUILES', 'BULLETIN', 'BANDEAU-2027', 'VERIF']) {
+      expect(html).toContain(`CHIFFRES:${reg}:START`);
+    }
+    expect(html.match(/data-n="/g)).toHaveLength(3);
+    expect(html).toContain('>Net à payer</td>');
+  });
+
+  it('maillage entrant (ADR §4) : home + comparateur pointent la page, retour outils', () => {
+    expect(LIEN_SNE8000.href).toBe(`/${PAGE_8000.chemin}`);
+    expect(LIEN_SNE8000.label).toContain('8 000');
+    const home = readFileSync(join(RACINE_APP, 'index.html'), 'utf8');
+    const comp = readFileSync(join(RACINE_APP, 'salaire-net-2027.html'), 'utf8');
+    const page = readFileSync(join(RACINE_APP, PAGE), 'utf8');
+    expect(home).toContain(`href="${LIEN_SNE8000.href}"`);
+    expect(comp).toContain(`href="${LIEN_SNE8000.href}"`);
+    // Sortants : bandeau PLF 2027 + retour simulateur (footer stampé).
+    expect(page).toContain('href="/salaire-net-2027"');
+    expect(page).toContain('href="/"');
+  });
+
+  it('sitemap + robots régénérés : 3 URL, lastmod = DATE_MAJ courant', () => {
+    const sitemap = readFileSync(join(RACINE_APP, 'public', 'sitemap.xml'), 'utf8');
+    expect(sitemap).toContain(`<lastmod>${DATE_MAJ}</lastmod>`);
+    for (const loc of [
+      `${SITE_URL}/`,
+      `${SITE_URL}/${PAGE_COMPARATEUR.chemin}`,
+      `${SITE_URL}/${PAGE_8000.chemin}`,
+    ]) {
+      expect(sitemap).toContain(`<loc>${loc}</loc>`);
+    }
+    const robots = readFileSync(join(RACINE_APP, 'public', 'robots.txt'), 'utf8');
+    expect(robots).toContain(`Sitemap: ${SITE_URL}/sitemap.xml`);
+  });
+
+  it('footer F6 : date de vérification datée + maillage outils/textes', () => {
+    expect(FOOT_8000.dateVerification).toMatch(/^\d{2}\/\d{2}\/\d{4}$/);
+    expect(FOOT_8000.textes.label).toBe('CGI/DGI');
+    expect(FOOT_8000.maillage.some((l) => l.href === '/salaire-net-2027')).toBe(true);
+    expect(FOOT_8000.maillage.some((l) => l.href === '/')).toBe(true);
+  });
+
+  it('libellés du bulletin verbatim du moteur (LIGNES_BULLETIN via lignesPaie)', () => {
+    const r = calcMensuel({
+      brutBase: 8000,
+      dateEmbauche: '',
+      panier: 500,
+      transport: 500,
+      amoOui: true,
+      tauxCimr: 0,
+      nbCharges: 0,
+    });
+    const labels = lignesPaie(r, { tauxCimr: 0, amoOui: true, nbCharges: 0 }).map(
+      (l) => l.label,
+    );
+    const html = readFileSync(join(RACINE_APP, PAGE), 'utf8');
+    // Lignes à libellé moteur EXACT (source unique calcul.ts, LIGNES_BULLETIN).
+    for (const verbatim of ['Total gains (SBI + panier + transport)', 'Net à payer']) {
+      expect(labels, `moteur doit connaître « ${verbatim} »`).toContain(verbatim);
+      expect(html, `page doit afficher verbatim « ${verbatim} »`).toContain(verbatim);
+    }
+    // IR : libellé moteur « IR net » + token de tranche du stub stampé.
+    expect(html).toContain('IR net (tranche T3)');
+    // Lexique : FP = déduction fiscale, jamais une retenue.
+    expect(html).toContain('déduction fiscale');
+    expect(html).not.toContain('retenue fiscale');
   });
 });

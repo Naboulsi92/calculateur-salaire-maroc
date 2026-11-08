@@ -1,20 +1,23 @@
 // D3 : source unique SEO — `npm run seo` (câblé dans `npm run build`).
 // Tout est RÉGÉNÉRÉ depuis scripts/site.mjs : aucune valeur SEO n'existe
 // ailleurs. Idempotent : relançable sans risque (les régions sont remplacées,
-// jamais les valeurs). I3 : stamping des 2 pages (home + comparateur).
+// jamais les valeurs). I3 : stamping des pages (home, comparateur, F6 8000).
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { dirname, join, sep } from 'node:path';
+import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { insideRoot, region } from './regions.mjs';
 import {
   BANDEAU_COMPARATEUR,
   BANDEAU_PROJET,
   CF_WEB_ANALYTICS_TOKEN,
   COMPARATEUR_FOOTER,
   DATE_MAJ,
+  FOOT_8000,
   GOOGLE_SITE_VERIFICATION,
   LIEN_404_COMPARATEUR,
   LIEN_404_HOME,
   LIEN_COMPARATEUR,
+  PAGE_8000,
   PAGE_COMPARATEUR,
   PAGE_HOME,
   PORTAILS,
@@ -32,35 +35,6 @@ const externe = (url, label) =>
 
 /** URL publique d'une page (chemin vide = racine ; sans extension, cf. site.mjs). */
 const urlDe = (page) => (page.chemin ? `${SITE_URL}/${page.chemin}` : `${SITE_URL}/`);
-
-/** Garde-fou review : aucune écriture hors du projet, même si ROOT dérive. */
-function insideRoot(path) {
-  const full = join(ROOT, path);
-  if (full !== ROOT && !full.startsWith(ROOT + sep)) {
-    throw new Error(`Hors projet, écriture refusée : ${path}`);
-  }
-  return full;
-}
-
-function region(path, name, body) {
-  const full = insideRoot(path);
-  const text = readFileSync(full, 'utf8');
-  const start = `<!-- SEO:${name}:START -->`;
-  const end = `<!-- SEO:${name}:END -->`;
-  if (!text.includes(start) || !text.includes(end)) {
-    throw new Error(`${path} : région manquante SEO:${name}`);
-  }
-  // Le body est écrit en \n ; on l'adapte aux CRLF éventuels du fichier cible.
-  const eol = text.includes('\r\n') ? '\r\n' : '\n';
-  const norm = body.replace(/\r?\n/g, eol);
-  // L'indentation du marqueur START est conservée pour le bloc régénéré.
-  const line = text.split('\n').find((l) => l.includes(start)) || '';
-  const ind = line.slice(0, line.length - line.trimStart().length);
-  writeFileSync(
-    full,
-    text.replace(new RegExp(`${start}[\\s\\S]*?${end}`, ''), `${start}${eol}${norm}${eol}${ind}${end}`),
-  );
-}
 
 // -- HEAD : title, description, canonical, robots, theme, OG (statiques pré-JS)
 function headPage(page) {
@@ -140,6 +114,11 @@ const footerHome = `      <span><a href="${LIEN_COMPARATEUR.href}">${esc(LIEN_CO
 const footerComp = `      <span>${esc(COMPARATEUR_FOOTER.disclaimer)}</span>
       <span><a href="${COMPARATEUR_FOOTER.lienRetour.href}">${esc(COMPARATEUR_FOOTER.lienRetour.label)}</a> · Textes : ${externe(COMPARATEUR_FOOTER.texteLegal.url, esc(COMPARATEUR_FOOTER.texteLegal.label))}</span>`;
 
+const footer8000 = `        <span>${FOOT_8000.maillage.map((l) => `<a href="${l.href}">${esc(l.label)}</a>`).join(' · ')}</span>
+        <span>Textes : ${externe(FOOT_8000.textes.url, esc(FOOT_8000.textes.label))} · ${esc(FOOT_8000.textes.refs)}</span>
+        <span>Portails : ${PORTAILS.map((p) => `${externe(p.url, esc(p.nom))}`).join(' · ')}</span>
+        <span>Barèmes vérifiés le ${esc(FOOT_8000.dateVerification)}</span>`;
+
 // -- D24 : bandeau d'entrée visible vers le comparateur (home uniquement).
 // Marqueur SEO + verbe d'action dans une pastille CTA : le lien doit se lire
 // comme un bouton menant à une autre page (feedback utilisateur 02/11).
@@ -153,7 +132,7 @@ const bandeauComp = `      <a class="bandeau" href="${LIEN_COMPARATEUR.href}">
 const bandeauProjet = `        ⚠️ <b>${esc(BANDEAU_PROJET.titre)}</b> — ${esc(BANDEAU_PROJET.detail)}`;
 
 // -- Analytics / Search Console : snippets conditionnels (site.mjs), présents
-// sur les 2 pages + 404.html (le trafic des URL cassées reste utile à voir).
+// sur les pages + 404.html (le trafic des URL cassées reste utile à voir).
 const beacon = CF_WEB_ANALYTICS_TOKEN
   ? `    <script defer src="https://static.cloudflareinsights.com/beacon.min.js"
       data-cf-beacon='{"token": "${CF_WEB_ANALYTICS_TOKEN}"}'></script>\n`
@@ -188,7 +167,7 @@ function inject(path, after, snippet, name) {
 const footer404 = `        <a class="lien primaire" href="${PAGE_HOME.chemin ? `/${PAGE_HOME.chemin}` : '/'}">${esc(LIEN_404_HOME)}</a>
         <a class="lien" href="/${PAGE_COMPARATEUR.chemin}">${esc(LIEN_404_COMPARATEUR)}</a>`;
 
-// -- robots.txt / sitemap.xml : fichiers entièrement générés (2 URL).
+// -- robots.txt / sitemap.xml : fichiers entièrement générés (3 URL).
 const robots = `User-agent: *
 Allow: /
 Sitemap: ${SITE_URL}/sitemap.xml
@@ -196,6 +175,7 @@ Sitemap: ${SITE_URL}/sitemap.xml
 const URLS_SITEMAP = [
   { loc: `${SITE_URL}/`, changefreq: 'yearly', priority: '1.0' },
   { loc: urlDe(PAGE_COMPARATEUR), changefreq: 'monthly', priority: '0.9' },
+  { loc: urlDe(PAGE_8000), changefreq: 'monthly', priority: '0.7' },
 ];
 const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -210,7 +190,7 @@ ${URLS_SITEMAP.map(
 </urlset>
 `;
 
-// -- Stamping : mêmes 4 régions sur les 2 pages, footer spécifique par page.
+// -- Stamping : régions HEAD/FAQ/FOOTER sur les pages, footer spécifique par page.
 region('index.html', 'HEAD', headPage(PAGE_HOME));
 region('index.html', 'FAQ-BODY', faqBody(PAGE_HOME.faq));
 region('index.html', 'FAQ-JSONLD', jsonLd(PAGE_HOME));
@@ -221,12 +201,16 @@ region(PAGE_COMPARATEUR.fichier, 'FAQ-BODY', faqBody(PAGE_COMPARATEUR.faq));
 region(PAGE_COMPARATEUR.fichier, 'FAQ-JSONLD', jsonLd(PAGE_COMPARATEUR));
 region(PAGE_COMPARATEUR.fichier, 'PROJET', bandeauProjet);
 region(PAGE_COMPARATEUR.fichier, 'FOOTER', footerComp);
+region(PAGE_8000.fichier, 'HEAD', headPage(PAGE_8000));
+region(PAGE_8000.fichier, 'FAQ-BODY', faqBody(PAGE_8000.faq));
+region(PAGE_8000.fichier, 'FAQ-JSONLD', jsonLd(PAGE_8000));
+region(PAGE_8000.fichier, 'FOOTER', footer8000);
 region('404.html', 'FOOTER', footer404);
 writeFileSync(insideRoot('public/robots.txt'), robots);
 writeFileSync(insideRoot('public/sitemap.xml'), sitemap);
 
-// -- Analytics : balise beacon (les 3 pages) + meta/fichier de vérification GSC.
-for (const f of ['index.html', PAGE_COMPARATEUR.fichier, '404.html']) {
+// -- Analytics : balise beacon (les 4 pages) + meta/fichier de vérification GSC.
+for (const f of ['index.html', PAGE_COMPARATEUR.fichier, PAGE_8000.fichier, '404.html']) {
   inject(f, '</head>', beacon, 'BEACON');
   inject(f, '<head>', gscMeta, 'GSC');
 }
@@ -239,7 +223,7 @@ if (GOOGLE_SITE_VERIFICATION) {
 }
 
 console.log(
-  `SEO OK : index.html + ${PAGE_COMPARATEUR.fichier}, robots.txt, sitemap.xml (2 URL) régénérés depuis scripts/site.mjs` +
+  `SEO OK : index.html + ${PAGE_COMPARATEUR.fichier} + ${PAGE_8000.fichier}, robots.txt, sitemap.xml (3 URL) régénérés depuis scripts/site.mjs` +
     (CF_WEB_ANALYTICS_TOKEN ? ' · Cloudflare Web Analytics actif' : ' · Web Analytics inactif (token vide)') +
     (GOOGLE_SITE_VERIFICATION ? ' · vérification Search Console active' : ''),
 );

@@ -1,6 +1,8 @@
-// Génère public/og-*-1200x630.png via Chromium (Playwright) — 2 pages (I3).
-// `npm run og` — relancer après changement de titre ou de millésime.
-// Textes issus de scripts/site.mjs (source unique, D3) : ANNEE / ANNEE_CIBLE.
+// Génère public/og-*-1200x630.png via Chromium (Playwright) — I3 (2 pages)
+// + Build 1/7 (ticket 09). `npm run og` — relancer après changement de titre
+// ou de millésime. Textes issus de scripts/site.mjs (source unique, D3) :
+// ANNEE / ANNEE_CIBLE ; titres d'affichage = présentation visuelle (comme
+// « 6 tranches »), les meta OG réelles restent stampées par seo.mjs.
 import { chromium } from '@playwright/test';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -16,6 +18,7 @@ const CSS = `
   .eyebrow { font-family: 'IBM Plex Mono', monospace; font-size: 26px; letter-spacing: 4px;
     text-transform: uppercase; color: #0e6b4a; margin-bottom: 24px; }
   h1 { font-family: Fraunces, Georgia, serif; font-size: 104px; line-height: 1.02; letter-spacing: -1px; }
+  .compact h1 { font-size: 84px; }
   .sub { font-size: 34px; color: #3d534c; margin-top: 28px; }
   .right { width: 380px; background: #0e6b4a; color: #faf7f0; display: flex;
     flex-direction: column; align-items: center; justify-content: center; gap: 18px; }
@@ -23,11 +26,11 @@ const CSS = `
   .big { font-family: Fraunces, Georgia, serif; font-size: 64px; }
 `;
 
-const page = (left, right) => `<!doctype html>
+const page = (left, right, classe = '') => `<!doctype html>
 <html lang="fr"><head><meta charset="utf-8" />
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@700&family=Inter:wght@400;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet" />
 <style>${CSS}</style></head>
-<body>
+<body class="${classe}">
   <div class="left">
     <p class="eyebrow">${left.eyebrow}</p>
     <h1>${left.titre}</h1>
@@ -66,6 +69,23 @@ const IMAGES = [
         { cls: 'big', text: '+500' },
         { cls: 'badge', text: 'MAD/mois max' },
       ],
+    ),
+  },
+  {
+    // Build 1/7 (ticket 09) — F6 « Quel brut pour 8 000 MAD de net ? ».
+    nom: 'og-salaire-net-8000-1200x630.png',
+    html: page(
+      {
+        eyebrow: `Bulletin inversé · Maroc · LF ${ANNEE}`,
+        titre: 'Salaire net 8 000 MAD : quel brut ?',
+        sub: `Bulletin à l'envers calculé au centime — CNSS, AMO, IR ligne à ligne · gratuit, 100 % local`,
+      },
+      [
+        { cls: 'badge', text: 'Net voulu' },
+        { cls: 'big', text: '8 000' },
+        { cls: 'badge', text: 'MAD/mois' },
+      ],
+      'compact',
     ),
   },
 ];
