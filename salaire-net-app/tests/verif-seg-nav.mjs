@@ -10,6 +10,7 @@ for (const [url, nom] of [
   [PREVIEW_URL, 'home'],
   [new URL('salaire-net-2027', PREVIEW_URL).href, 'comparateur'],
   [new URL('salaire-net-8000', PREVIEW_URL).href, '8000'],
+  [new URL('salaire-net-10000', PREVIEW_URL).href, '10000'],
 ]) {
   await page.goto(url, { waitUntil: 'domcontentloaded' });
   await page.waitForTimeout(250);

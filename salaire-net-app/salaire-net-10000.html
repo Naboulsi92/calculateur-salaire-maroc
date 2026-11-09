@@ -1,0 +1,226 @@
+<!doctype html>
+<!-- Build 2/7 — vague pages FR (ADR 0001, ticket 10). Page statique ; chiffres
+     stampés au build par scripts/chiffres-10000.mjs (dichotomie sur calcMensuel,
+     oracles ≤ 0,02 MAD ; particularité : ici le brut dépasse le net — retenues
+     ≈ 1 127 MAD > avantage panier/transport 1 000 MAD), SEO stampé par
+     scripts/seo.mjs depuis scripts/site.mjs. Gabarit : /salaire-net-8000
+     (ticket 09, direction v1 « Bulletin renforcé » ratifiée). -->
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<!-- SEO:HEAD:START -->
+    <title>Salaire net 10 000 MAD : quel brut ? (Maroc 2026)</title>
+    <meta name="description" content="Le brut de base pour 10 000 MAD de net au Maroc en 2026 : bulletin inversé calculé au centime par le moteur (LF 50-25), CNSS, AMO, IR ligne à ligne, net annuel et table brut → net autour de 10 000." />
+    <!-- Domaine : source unique scripts/site.mjs (commande npm run seo) -->
+    <link rel="canonical" href="https://calculateur-salaire.ma/salaire-net-10000" />
+    <meta name="robots" content="index,follow,max-image-preview:large" />
+    <meta name="theme-color" content="#0e6b4a" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="fr_MA" />
+    <meta property="og:url" content="https://calculateur-salaire.ma/salaire-net-10000" />
+    <meta property="og:title" content="Salaire net 10 000 MAD : quel brut ? (Maroc 2026)" />
+    <meta property="og:description" content="Votre bulletin à l'envers : 10 000 MAD de net ⇒ 10 126,92 MAD de brut de base (LF 2026), CNSS, AMO, IR ligne à ligne." />
+    <meta property="og:image" content="https://calculateur-salaire.ma/og-salaire-net-10000-1200x630.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Salaire net 10 000 MAD : quel brut ? (Maroc 2026)" />
+    <meta name="twitter:description" content="Votre bulletin à l'envers : 10 000 MAD de net ⇒ 10 126,92 MAD de brut de base (LF 2026), CNSS, AMO, IR ligne à ligne." />
+    <meta name="twitter:image" content="https://calculateur-salaire.ma/og-salaire-net-10000-1200x630.png" />
+<!-- SEO:HEAD:END -->
+<!-- SEO:FAQ-JSONLD:START -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebApplication",
+          "name": "Bulletin inversé 10 000 MAD net (Maroc 2026)",
+          "url": "https://calculateur-salaire.ma/salaire-net-10000",
+          "inLanguage": "fr",
+          "applicationCategory": "FinanceApplication",
+          "operatingSystem": "Web",
+          "isAccessibleForFree": true,
+          "dateModified": "2026-11-08",
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "MAD"
+          }
+        },
+        {
+          "@type": "FAQPage",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "Quel brut de base pour 10 000 MAD de net au Maroc ?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "10 126,92 MAD de brut de base avec le profil courant (panier 500, transport 500, AMO, sans CIMR ni personne à charge). Contrairement à 8 000 MAD de net, le brut dépasse ici le net visé : à ce niveau, les retenues (CNSS plafonnée, AMO et IR à la tranche 30 %) dépassent l'avantage non imposable du panier et du transport (1 000 MAD). Avec un CIMR ou des enfants à charge, le brut nécessaire baisse : recalculez votre cas dans le simulateur complet."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Pourquoi le brut de base est-il supérieur au net visé ?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Parce qu'à ce niveau de revenu les retenues pèsent plus que l'avantage non imposable : CNSS 268,80 + AMO 228,87 + IR net 629,26 font environ 1 127 MAD de retenues, contre 1 000 MAD de panier et transport hors bases. Sur la page 8 000 MAD de net, c'est l'inverse : les retenues y sont si faibles que le net dépasse le brut de base."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Et en 2027 pour viser 10 000 MAD de net ?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Le PLF 2027 (projet n° 60-26) exonère jusqu'à environ 8 375 MAD de brut de base ; à 10 000 MAD, l'IR restant (158,85 MAD) est très inférieur à celui de 2026 (601,56 MAD). Le même net de 10 000 MAD demandera alors environ 9 606 MAD de brut au lieu de 10 127 — comparez les deux millésimes dans le comparateur 2027."
+              }
+            }
+          ]
+        }
+      ]
+    }
+    </script>
+<!-- SEO:FAQ-JSONLD:END -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+<!-- ANCHOR:BEACON:START -->
+    <script defer src="https://static.cloudflareinsights.com/beacon.min.js"
+      data-cf-beacon='{"token": "459376a51ea04058a85d25dc9b758bb9"}'></script>
+<!-- ANCHOR:BEACON:END -->
+  <body>
+    <div class="page">
+      <header class="masthead">
+        <div>
+          <p class="eyebrow">Bulletin inversé · Maroc · LF 2026</p>
+          <h1>Salaire net 10 000 MAD : quel brut ?</h1>
+        </div>
+        <div class="masthead-droite">
+          <nav class="seg-nav" aria-label="Choisir le simulateur">
+            <a href="/"><b>Simulateur</b><span>2026</span></a>
+            <a href="/salaire-net-2027"><b>Comparateur</b><span>2027–2031</span></a>
+          </nav>
+          <div class="stamp" aria-hidden="true"><span>IR</span><strong>LF 50-25</strong></div>
+        </div>
+      </header>
+
+      <main>
+        <section class="card slip" aria-labelledby="t-bulletin">
+          <h2 id="t-bulletin">Votre bulletin, à l'envers</h2>
+<!-- CHIFFRES:TUILES:START -->
+          <div class="nets">
+            <div class="net-main">
+              <span>Net voulu</span>
+              <strong class="mono"><span class="n" data-n="10000">10 000,00</span><span class="mad">MAD</span></strong>
+            </div>
+            <div class="net-alt">
+              <span>Brut de base trouvé</span>
+              <strong class="mono"><span class="n" data-n="10126.92">10 126,92</span><span class="mad">MAD</span></strong>
+            </div>
+            <div class="net-ecart">
+              <span>Net annuel</span>
+              <strong class="mono"><span class="n" data-n="119999.88">119 999,88</span><span class="mad">MAD</span></strong>
+              <small>9 999,99 × 12, profil courant</small>
+            </div>
+          </div>
+          <div class="badges">
+            <span class="badge">T4 · 30 %</span>
+            <span class="badge ghost">Panier 500 + transport 500</span>
+            <span class="badge ghost">AMO · sans CIMR · 0 charge</span>
+          </div>
+<!-- CHIFFRES:TUILES:END -->
+          <p class="note-eq">Ici, le brut de base dépasse le net voulu : les retenues (CNSS plafonnée + AMO + IR net ≈ 1 127 MAD) dépassent l'avantage non imposable de panier et transport (1 000 MAD).</p>
+          <div class="table-scroll" role="region" aria-labelledby="t-bulletin" tabindex="0" data-hide-an>
+            <table class="ledger">
+              <thead>
+                <tr><th>Ligne</th><th class="num">Taux</th><th class="num">Mensuel</th><th class="num">Annuel</th></tr>
+              </thead>
+              <tbody>
+<!-- CHIFFRES:BULLETIN:START -->
+                <tr><td>Total gains (SBI + panier + transport)</td><td class="num mono">—</td><td class="num mono">11 126,92</td><td class="num mono">133 523,04</td></tr>
+                <tr class="groupe"><td colspan="4">Retenues salariales</td></tr>
+                <tr><td>CNSS</td><td class="num mono">4,48 %</td><td class="num mono">−268,80</td><td class="num mono">−3 225,60</td></tr>
+                <tr><td>AMO</td><td class="num mono">2,26 %</td><td class="num mono">−228,87</td><td class="num mono">−2 746,44</td></tr>
+                <tr class="groupe"><td colspan="4">Impôt</td></tr>
+                <tr><td>IR net (tranche T4)</td><td class="num mono">30 %</td><td class="num mono">−629,26</td><td class="num mono">−7 551,12</td></tr>
+                <tr class="net-row"><td>Net à payer</td><td class="num mono">—</td><td class="num mono">9 999,99</td><td class="num mono">119 999,88</td></tr>
+<!-- CHIFFRES:BULLETIN:END -->
+              </tbody>
+            </table>
+          </div>
+          <p class="note-fp">T4 = dernière tranche du barème atteinte ; le 30 % est son taux nominal, pas celui de tout le SNI. SBI (salaire brut imposable) = brut de base + prime d'ancienneté — ici sans ancienneté. Frais professionnels : déduction fiscale, jamais une retenue. CNSS plafonnée à 6 000 MAD d'assiette.</p>
+        </section>
+
+<!-- CHIFFRES:BANDEAU-2027:START -->
+        <a class="bandeau" href="/salaire-net-2027">
+          <span class="badge-nouveau">PLF 2027</span>
+          <span class="bandeau-texte"><b>Et si vous attendez 2027 ?</b><small>Brut 10 000 → net 9 903,64 en 2026, 10 346,35 en 2027 (+442,71/mois · +5 312,52/an)</small></span>
+          <span class="bandeau-cta">Comparer<span class="bandeau-fleche" aria-hidden="true">→</span></span>
+        </a>
+<!-- CHIFFRES:BANDEAU-2027:END -->
+
+        <section class="card editorial" aria-labelledby="t-verif" style="margin-top:20px">
+          <h2 id="t-verif">Dans l'autre sens : du brut au net autour de 10 000</h2>
+          <p>Mêmes règles, même profil courant — pour situer n'importe quelle offre :</p>
+          <div class="table-scroll" role="region" aria-labelledby="t-verif" tabindex="0" data-hide-an>
+            <table class="ledger">
+              <thead>
+                <tr><th>Brut de base</th><th class="num">IR</th><th class="num">Net/mois</th><th class="num">Net/an</th><th class="num">Dernière tranche</th></tr>
+              </thead>
+              <tbody>
+<!-- CHIFFRES:VERIF:START -->
+<tr><td>7 500,00</td><td class="num mono">204,01</td><td class="num mono">7 857,69</td><td class="num mono">94 292,28</td><td class="num mono">20 %</td></tr>
+<tr><td>8 000,00</td><td class="num mono">276,75</td><td class="num mono">8 273,65</td><td class="num mono">99 283,80</td><td class="num mono">20 %</td></tr>
+<tr><td>9 000,00</td><td class="num mono">422,23</td><td class="num mono">9 105,57</td><td class="num mono">109 266,84</td><td class="num mono">20 %</td></tr>
+<tr class="strong"><td>10 000,00</td><td class="num mono">601,56</td><td class="num mono">9 903,64</td><td class="num mono">118 843,68</td><td class="num mono">30 %</td></tr>
+<tr><td>11 000,00</td><td class="num mono">819,78</td><td class="num mono">10 662,82</td><td class="num mono">127 953,84</td><td class="num mono">30 %</td></tr>
+<tr><td>12 000,00</td><td class="num mono">1 071,40</td><td class="num mono">11 388,60</td><td class="num mono">136 663,20</td><td class="num mono">34 %</td></tr>
+<!-- CHIFFRES:VERIF:END -->
+              </tbody>
+            </table>
+          </div>
+          <p class="note-fp">La dernière tranche colonne est le taux marginal atteint : le barème étant progressif, il ne s'applique pas à tout le revenu imposable.</p>
+          <p class="note-fp">Vérifiez ces montants dans le <a href="/">simulateur complet</a> — même moteur, ligne à ligne.</p>
+          <p class="note-fp">Autre montant rond ? <a href="/salaire-net-8000">Salaire net 8 000 MAD : quel brut ?</a></p>
+        </section>
+
+        <a class="bandeau" href="/">
+          <span class="badge-nouveau">Simulateur</span>
+          <span class="bandeau-texte"><b>Votre profil est différent ?</b><small>CIMR, personnes à charge, ancienneté : le simulateur recalcule ligne à ligne.</small></span>
+          <span class="bandeau-cta">Calculer<span class="bandeau-fleche" aria-hidden="true">→</span></span>
+        </a>
+
+        <section class="card faq" aria-labelledby="t-faq" style="margin-top:20px">
+          <h2 id="t-faq">Questions fréquentes — brut ⇄ net 10 000 MAD</h2>
+<!-- SEO:FAQ-BODY:START -->
+      <div class="qa">
+        <h3>Quel brut de base pour 10 000 MAD de net au Maroc ?</h3>
+        <p>10 126,92 MAD de brut de base avec le profil courant (panier 500, transport 500, AMO, sans CIMR ni personne à charge). Contrairement à 8 000 MAD de net, le brut dépasse ici le net visé : à ce niveau, les retenues (CNSS plafonnée, AMO et IR à la tranche 30 %) dépassent l'avantage non imposable du panier et du transport (1 000 MAD). Avec un CIMR ou des enfants à charge, le brut nécessaire baisse : recalculez votre cas dans le simulateur complet.</p>
+      </div>
+      <div class="qa">
+        <h3>Pourquoi le brut de base est-il supérieur au net visé ?</h3>
+        <p>Parce qu'à ce niveau de revenu les retenues pèsent plus que l'avantage non imposable : CNSS 268,80 + AMO 228,87 + IR net 629,26 font environ 1 127 MAD de retenues, contre 1 000 MAD de panier et transport hors bases. Sur la page 8 000 MAD de net, c'est l'inverse : les retenues y sont si faibles que le net dépasse le brut de base.</p>
+      </div>
+      <div class="qa">
+        <h3>Et en 2027 pour viser 10 000 MAD de net ?</h3>
+        <p>Le PLF 2027 (projet n° 60-26) exonère jusqu'à environ 8 375 MAD de brut de base ; à 10 000 MAD, l'IR restant (158,85 MAD) est très inférieur à celui de 2026 (601,56 MAD). Le même net de 10 000 MAD demandera alors environ 9 606 MAD de brut au lieu de 10 127 — comparez les deux millésimes dans le comparateur 2027.</p>
+      </div>
+<!-- SEO:FAQ-BODY:END -->
+        </section>
+
+        <footer class="foot">
+<!-- SEO:FOOTER:START -->
+        <span><a href="/">← Simulateur 2026</a> · <a href="/salaire-net-2027">Comparateur PLF 2027</a></span>
+        <span>Textes : <a href="https://www.tax.gov.ma" target="_blank" rel="noopener noreferrer">CGI/DGI</a> · LF 50-25 · PLF 2027 (projet n° 60-26)</span>
+        <span>Portails : <a href="https://www.cnss.ma" target="_blank" rel="noopener noreferrer">CNSS</a> · <a href="https://damancom.ma" target="_blank" rel="noopener noreferrer">DamanCom</a> · <a href="https://www.cimr.ma" target="_blank" rel="noopener noreferrer">CIMR</a></span>
+        <span>Barèmes vérifiés le 08/11/2026</span>
+<!-- SEO:FOOTER:END -->
+        </footer>
+      </main>
+    </div>
+    <script type="module" src="/src/salaire10000.ts"></script>
+  </body>
+</html>

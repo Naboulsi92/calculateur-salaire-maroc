@@ -88,6 +88,23 @@ const IMAGES = [
       'compact',
     ),
   },
+  {
+    // Build 2/7 (ticket 10) — F6 « Quel brut pour 10 000 MAD de net ? ».
+    nom: 'og-salaire-net-10000-1200x630.png',
+    html: page(
+      {
+        eyebrow: `Bulletin inversé · Maroc · LF ${ANNEE}`,
+        titre: 'Salaire net 10 000 MAD : quel brut ?',
+        sub: `Bulletin à l'envers calculé au centime — CNSS, AMO, IR ligne à ligne · gratuit, 100 % local`,
+      },
+      [
+        { cls: 'badge', text: 'Net voulu' },
+        { cls: 'big', text: '10 000' },
+        { cls: 'badge', text: 'MAD/mois' },
+      ],
+      'compact',
+    ),
+  },
 ];
 
 const browser = await chromium.launch();

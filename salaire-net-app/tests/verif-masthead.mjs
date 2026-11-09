@@ -46,24 +46,37 @@ async function mesure(url) {
 
 const home = await mesure(PREVIEW_URL);
 const comp = await mesure(new URL('salaire-net-2027', PREVIEW_URL).href);
-// Build 1/7 (ticket 09) : la page F6 rejoint la garantie visuelle. Guide :
-// aucun de ses outils n'est « courant » (le sélecteur ne marque jamais la
-// page hébergée) — vérifié en fin de script.
+// Build 1/7 + 2/7 (tickets 09/10) : les pages F6 rejoignent la garantie
+// visuelle. Guide : aucun de ses outils n'est « courant » (le sélecteur ne
+// marque jamais la page hébergée) — vérifié en fin de script.
 const p8000 = await mesure(new URL('salaire-net-8000', PREVIEW_URL).href);
+const p10000 = await mesure(new URL('salaire-net-10000', PREVIEW_URL).href);
+const guides = [p8000, p10000];
 
-const memesPills = home.pills[0] === home.pills[1] && comp.pills[0] === comp.pills[1] && p8000.pills[0] === p8000.pills[1];
-const memePaire = home.pills.join() === comp.pills.join() && comp.pills.join() === p8000.pills.join();
-if (!memesPills) throw new Error(`pills inégales home=${home.pills} comp=${comp.pills} 8000=${p8000.pills}`);
-if (!memePaire) throw new Error(`paire de pills différente entre pages: home=${home.pills} comp=${comp.pills} 8000=${p8000.pills}`);
-if (home.droite !== comp.droite || home.droite !== p8000.droite) throw new Error(`colonne droite hétérogène: home=${home.droite} comp=${comp.droite} 8000=${p8000.droite}`);
+const memesPills =
+  home.pills[0] === home.pills[1] &&
+  comp.pills[0] === comp.pills[1] &&
+  guides.every((g) => g.pills[0] === g.pills[1]);
+const memePaire =
+  home.pills.join() === comp.pills.join() &&
+  guides.every((g) => g.pills.join() === home.pills.join());
+if (!memesPills) throw new Error(`pills inégales home=${home.pills} comp=${comp.pills} 8000=${p8000.pills} 10000=${p10000.pills}`);
+if (!memePaire) throw new Error(`paire de pills différente entre pages: home=${home.pills} comp=${comp.pills} 8000=${p8000.pills} 10000=${p10000.pills}`);
+if (home.droite !== comp.droite || guides.some((g) => home.droite !== g.droite))
+  throw new Error(`colonne droite hétérogène: home=${home.droite} comp=${comp.droite} 8000=${p8000.droite} 10000=${p10000.droite}`);
 // Tolérance 1 px : « LF » est injecté par le JS (id=lf-annee), la première
 // mesure domcontentloaded peut donc voir l'eyebrake home avant remplissage.
 if (Math.abs(home.mast - comp.mast) > 1) throw new Error(`hauteur d'en-tête hétérogène: home=${home.mast} comp=${comp.mast}`);
-if (Math.abs(home.mast - p8000.mast) > 1) throw new Error(`hauteur d'en-tête hétérogène: home=${home.mast} 8000=${p8000.mast}`);
+for (const g of guides) {
+  if (Math.abs(home.mast - g.mast) > 1)
+    throw new Error(`hauteur d'en-tête hétérogène: home=${home.mast} guide=${g.mast}`);
+}
 if (!home.courant || !comp.courant || home.courant === comp.courant)
   throw new Error(`onglet actif manquant ou identique: home="${home.courant}" comp="${comp.courant}"`);
-if (p8000.courant)
-  throw new Error(`le guide 8000 ne doit pas marquer d'onglet courant: "${p8000.courant}"`);
+for (const g of guides) {
+  if (g.courant)
+    throw new Error(`les pages guide ne doivent pas marquer d'onglet courant: "${g.courant}"`);
+}
 
 // Le texte du plus long libellé ne doit jamais être coupé (172px ≥ intrinsic).
 const deborde = await page.evaluate(() => {
@@ -71,8 +84,8 @@ const deborde = await page.evaluate(() => {
   return a.scrollWidth > a.clientWidth + 1;
 });
 if (deborde) throw new Error('libellé de pill tronqué');
-if (!home.aligneDroite || !comp.aligneDroite || !p8000.aligneDroite)
-  throw new Error(`sélecteur non aligné avec le tampon: home=${home.aligneDroite} comp=${comp.aligneDroite} 8000=${p8000.aligneDroite}`);
+if (!home.aligneDroite || !comp.aligneDroite || guides.some((g) => !g.aligneDroite))
+  throw new Error(`sélecteur non aligné avec le tampon: home=${home.aligneDroite} comp=${comp.aligneDroite} 8000=${p8000.aligneDroite} 10000=${p10000.aligneDroite}`);
 
 await browser.close();
-console.log('MASTHEAD OK', JSON.stringify({ home, comp, p8000 }));
+console.log('MASTHEAD OK', JSON.stringify({ home, comp, p8000, p10000 }));

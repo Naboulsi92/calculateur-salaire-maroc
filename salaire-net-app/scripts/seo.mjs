@@ -1,7 +1,7 @@
 // D3 : source unique SEO — `npm run seo` (câblé dans `npm run build`).
 // Tout est RÉGÉNÉRÉ depuis scripts/site.mjs : aucune valeur SEO n'existe
 // ailleurs. Idempotent : relançable sans risque (les régions sont remplacées,
-// jamais les valeurs). I3 : stamping des pages (home, comparateur, F6 8000).
+// jamais les valeurs). I3 : stamping des pages (home, comparateur, F6 8000, F6 10000).
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -13,11 +13,13 @@ import {
   COMPARATEUR_FOOTER,
   DATE_MAJ,
   FOOT_8000,
+  FOOT_10000,
   GOOGLE_SITE_VERIFICATION,
   LIEN_404_COMPARATEUR,
   LIEN_404_HOME,
   LIEN_COMPARATEUR,
   PAGE_8000,
+  PAGE_10000,
   PAGE_COMPARATEUR,
   PAGE_HOME,
   PORTAILS,
@@ -119,6 +121,11 @@ const footer8000 = `        <span>${FOOT_8000.maillage.map((l) => `<a href="${l.
         <span>Portails : ${PORTAILS.map((p) => `${externe(p.url, esc(p.nom))}`).join(' · ')}</span>
         <span>Barèmes vérifiés le ${esc(FOOT_8000.dateVerification)}</span>`;
 
+const footer10000 = `        <span>${FOOT_10000.maillage.map((l) => `<a href="${l.href}">${esc(l.label)}</a>`).join(' · ')}</span>
+        <span>Textes : ${externe(FOOT_10000.textes.url, esc(FOOT_10000.textes.label))} · ${esc(FOOT_10000.textes.refs)}</span>
+        <span>Portails : ${PORTAILS.map((p) => `${externe(p.url, esc(p.nom))}`).join(' · ')}</span>
+        <span>Barèmes vérifiés le ${esc(FOOT_10000.dateVerification)}</span>`;
+
 // -- D24 : bandeau d'entrée visible vers le comparateur (home uniquement).
 // Marqueur SEO + verbe d'action dans une pastille CTA : le lien doit se lire
 // comme un bouton menant à une autre page (feedback utilisateur 02/11).
@@ -167,7 +174,7 @@ function inject(path, after, snippet, name) {
 const footer404 = `        <a class="lien primaire" href="${PAGE_HOME.chemin ? `/${PAGE_HOME.chemin}` : '/'}">${esc(LIEN_404_HOME)}</a>
         <a class="lien" href="/${PAGE_COMPARATEUR.chemin}">${esc(LIEN_404_COMPARATEUR)}</a>`;
 
-// -- robots.txt / sitemap.xml : fichiers entièrement générés (3 URL).
+// -- robots.txt / sitemap.xml : fichiers entièrement générés (4 URL).
 const robots = `User-agent: *
 Allow: /
 Sitemap: ${SITE_URL}/sitemap.xml
@@ -176,6 +183,7 @@ const URLS_SITEMAP = [
   { loc: `${SITE_URL}/`, changefreq: 'yearly', priority: '1.0' },
   { loc: urlDe(PAGE_COMPARATEUR), changefreq: 'monthly', priority: '0.9' },
   { loc: urlDe(PAGE_8000), changefreq: 'monthly', priority: '0.7' },
+  { loc: urlDe(PAGE_10000), changefreq: 'monthly', priority: '0.7' },
 ];
 const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -205,12 +213,16 @@ region(PAGE_8000.fichier, 'HEAD', headPage(PAGE_8000));
 region(PAGE_8000.fichier, 'FAQ-BODY', faqBody(PAGE_8000.faq));
 region(PAGE_8000.fichier, 'FAQ-JSONLD', jsonLd(PAGE_8000));
 region(PAGE_8000.fichier, 'FOOTER', footer8000);
+region(PAGE_10000.fichier, 'HEAD', headPage(PAGE_10000));
+region(PAGE_10000.fichier, 'FAQ-BODY', faqBody(PAGE_10000.faq));
+region(PAGE_10000.fichier, 'FAQ-JSONLD', jsonLd(PAGE_10000));
+region(PAGE_10000.fichier, 'FOOTER', footer10000);
 region('404.html', 'FOOTER', footer404);
 writeFileSync(insideRoot('public/robots.txt'), robots);
 writeFileSync(insideRoot('public/sitemap.xml'), sitemap);
 
-// -- Analytics : balise beacon (les 4 pages) + meta/fichier de vérification GSC.
-for (const f of ['index.html', PAGE_COMPARATEUR.fichier, PAGE_8000.fichier, '404.html']) {
+// -- Analytics : balise beacon (les 5 pages) + meta/fichier de vérification GSC.
+for (const f of ['index.html', PAGE_COMPARATEUR.fichier, PAGE_8000.fichier, PAGE_10000.fichier, '404.html']) {
   inject(f, '</head>', beacon, 'BEACON');
   inject(f, '<head>', gscMeta, 'GSC');
 }
@@ -223,7 +235,7 @@ if (GOOGLE_SITE_VERIFICATION) {
 }
 
 console.log(
-  `SEO OK : index.html + ${PAGE_COMPARATEUR.fichier} + ${PAGE_8000.fichier}, robots.txt, sitemap.xml (3 URL) régénérés depuis scripts/site.mjs` +
+  `SEO OK : index.html + ${PAGE_COMPARATEUR.fichier} + ${PAGE_8000.fichier} + ${PAGE_10000.fichier}, robots.txt, sitemap.xml (4 URL) régénérés depuis scripts/site.mjs` +
     (CF_WEB_ANALYTICS_TOKEN ? ' · Cloudflare Web Analytics actif' : ' · Web Analytics inactif (token vide)') +
     (GOOGLE_SITE_VERIFICATION ? ' · vérification Search Console active' : ''),
 );

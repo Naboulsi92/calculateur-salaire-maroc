@@ -15,6 +15,7 @@ const PAGES: Record<string, string> = {
   'index.html': 'src/main.ts',
   'salaire-net-2027.html': 'src/comparateur.ts',
   'salaire-net-8000.html': 'src/salaire8000.ts', // Build 1/7 (ticket 09)
+  'salaire-net-10000.html': 'src/salaire10000.ts', // Build 2/7 (ticket 10)
   '404.html': '', // page statique, pas de module ni de CSS
 };
 
@@ -48,6 +49,7 @@ export default defineConfig({
         index: fileURLToPath(new URL('./index.html', import.meta.url)),
         comparateur: fileURLToPath(new URL('./salaire-net-2027.html', import.meta.url)),
         net8000: fileURLToPath(new URL('./salaire-net-8000.html', import.meta.url)),
+        net10000: fileURLToPath(new URL('./salaire-net-10000.html', import.meta.url)),
         notfound: fileURLToPath(new URL('./404.html', import.meta.url)),
       },
     },
