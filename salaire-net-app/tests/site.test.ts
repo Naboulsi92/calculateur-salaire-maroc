@@ -391,3 +391,42 @@ describe('F6 10000 — page « Bulletin renforcé » (ticket 10, build 2/7)', ()
     expect(html).not.toContain('retenue fiscale');
   });
 });
+
+describe('style prod — accessibilité héritée (ticket 11)', () => {
+  // WCAG 2.1 SC 1.4.3 — texte normal : AA = 4,5:1. Luminance relative exacte
+  // (formule officielle), calculée en TS : pas de vérification à l'œil.
+  const lireCss = (): string => readFileSync(join(RACINE_APP, 'src', 'style.css'), 'utf8');
+
+  const canal = (hex: string, i: number): number => {
+    const v = parseInt(hex.slice(i, i + 2), 16) / 255;
+    return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+  };
+  const luminance = (hex: string): number => 0.2126 * canal(hex, 1) + 0.7152 * canal(hex, 3) + 0.0722 * canal(hex, 5);
+  const contraste = (a: string, b: string): number => {
+    const la = luminance(a);
+    const lb = luminance(b);
+    return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05);
+  };
+
+  it('token --muted : hex épinglé #5f6f6a + contraste ≥ 4,5:1 sur #ffffff ET #faf7f0', () => {
+    const m = /--muted:\s*(#[0-9a-fA-F]{6})\s*;/.exec(lireCss());
+    const hex = m ? m[1].toLowerCase() : '';
+    expect(hex, 'token --muted doit exister en hex 6 chiffres').toBe('#5f6f6a');
+    const surCarte = contraste(hex, '#ffffff');
+    const surPapier = contraste(hex, '#faf7f0');
+    expect(surCarte, `--muted sur carte blanche = ${surCarte.toFixed(4)}:1 (ex 4,49:1)`).toBeGreaterThanOrEqual(4.5);
+    expect(surPapier, `--muted sur papier = ${surPapier.toFixed(4)}:1 (.foot)`).toBeGreaterThanOrEqual(4.5);
+  });
+
+  it('.note-fp : 13 px (ex 12 px — note lexique dense du gabarit)', () => {
+    const ligne = lireCss().split('\n').find((l) => l.includes('.note-fp {')) ?? '';
+    expect(ligne, 'règle .note-fp présente dans src/style.css').not.toBe('');
+    expect(ligne).toContain('font-size: 13px');
+  });
+
+  it('.net-ecart small : 12,5 px (ex tiny-text 11,5 px, aligné .foot)', () => {
+    const ligne = lireCss().split('\n').find((l) => l.includes('.net-ecart small {')) ?? '';
+    expect(ligne, 'règle .net-ecart small présente dans src/style.css').not.toBe('');
+    expect(ligne).toContain('font-size: 12.5px');
+  });
+});

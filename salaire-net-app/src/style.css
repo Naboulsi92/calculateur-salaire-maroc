@@ -8,7 +8,10 @@
   :root {
     --ink: #1a2e28;
     --ink-soft: #3d534c;
-    --muted: #6b7a76;
+    /* Ticket 11 : contraste WCAG AA ≥ 4,5:1 partout — 5,29:1 sur #ffffff
+       (cartes) et 4,95:1 sur le papier #faf7f0 (.foot). L'ancien #6b7a76
+       tombait à 4,49:1 sur carte blanche (assert vitest de la valeur). */
+    --muted: #5f6f6a;
     --paper: #faf7f0;
     --card: #ffffff;
     --line: #e5ddcc;
@@ -118,7 +121,7 @@
   .net-ecart { background: #fff; }
   .net-ecart strong.pos { color: var(--emerald-deep); }
   .net-ecart strong.neg { color: var(--clay); }
-  .net-ecart small { display: block; margin-top: 2px; font-size: 11.5px; color: var(--muted); }
+  .net-ecart small { display: block; margin-top: 2px; font-size: 12.5px; color: var(--muted); } /* Ticket 11 : 12,5 px (aligné .foot) au lieu de 11,5 px. */
   /* Ticket 09 — tuiles F6 : le montant vit dans <span class="n"> (animable par
      le count-up de salaire8000.ts sans détruire le style), l'unité dans
      <span class="mad"> qui hérite du style « label » de la tuile. */
@@ -155,7 +158,8 @@
   .ledger .ecart-sub { display: block; font-size: 10.5px; font-weight: 400; letter-spacing: 0; opacity: 0.85; }
   .ledger tr.net-row td { font-weight: 700; background: #e9f2ec; border-top: 2px solid var(--emerald); }
   .ledger tr.groupe td { font-family: var(--mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-soft); background: #f5f1e6; border-top: 1.5px solid var(--line); padding: 5px 6px; }
-  .note-fp { font-size: 12px; color: var(--muted); margin: 8px 0 0; }
+  /* Ticket 11 : note lexique à 13 px (convention de la feuille), ex 12 px. */
+  .note-fp { font-size: 13px; color: var(--muted); margin: 8px 0 0; }
   .note-eq { font-family: var(--mono); font-size: 12px; color: var(--muted); margin: 0 0 12px; }
   .mono { font-family: var(--mono); }
   .badges { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
